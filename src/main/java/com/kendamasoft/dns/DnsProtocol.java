@@ -350,12 +350,31 @@ public class DnsProtocol {
         short questionClass;
     }
 
-    static class Message {
+    /**
+     * DNS protocol message model
+     */
+    public static class Message {
         Header header;
         QuestionEntry questionEntry;
         List<ResourceRecord> answerRecordList;
         List<ResourceRecord> authorityRecordList;
         List<ResourceRecord> additionalRecordList;
+
+        public Header getHeader() {
+            return header;
+        }
+
+        public List<ResourceRecord> getAnswerRecordList() {
+            return answerRecordList;
+        }
+
+        public List<ResourceRecord> getAuthorityRecordList() {
+            return authorityRecordList;
+        }
+
+        public List<ResourceRecord> getAdditionalRecordList() {
+            return additionalRecordList;
+        }
     }
 
     /**
