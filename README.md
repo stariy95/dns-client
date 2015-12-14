@@ -8,11 +8,19 @@ It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>
 ### Gradle
 
 Add as a dependency to your ```build.gradle```:
-TBD
+```
+repositories {
+    maven {
+        url  "http://dl.bintray.com/stariy95/maven"
+    }
+}
 
-### Maven
+...
 
-TBD
+dependencies {
+    compile(group: 'com.kendamasoft', name: 'dns-client', version: '0.9.2', ext: 'jar')
+}
+```
 
 ## Usage:
 ```java
@@ -26,28 +34,28 @@ TBD
                 .build();
 
         DnsProtocol.Message response = new ConnectionUdp().doRequest(request);
-        if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+        if (response.getHeader().hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
             response = new ConnectionTcp().doRequest(request);
         }
 
-        if(response.header.answerResourceRecordCount > 0) {
+        if(response.getHeader().getAnswerResourceRecordCount() > 0) {
             System.out.println("ANSWER:");
-            for(DnsProtocol.ResourceRecord record : response.answerRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
+                System.out.println(record);
             }
         }
 
-        if(response.header.authorityResourceRecordsCount > 0) {
+        if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
             System.out.println("AUTHORITY:");
-            for(DnsProtocol.ResourceRecord record : response.authorityRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
+                System.out.println(record);
             }
         }
 
-        if(response.header.additionalResourceRecordsCount > 0) {
+        if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
             System.out.println("ADDITIONAL:");
-            for(DnsProtocol.ResourceRecord record : response.additionalRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
+                System.out.println(record);
             }
         }
     }
