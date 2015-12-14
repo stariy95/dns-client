@@ -45,7 +45,7 @@ public class Buffer {
         write(header.transactionId);
         write(header.flags);
         write(header.questionResourceRecordCount);
-        write(header.answerResourceRecordCount);
+        write(header.answerResourceRecordsCount);
         write(header.authorityResourceRecordsCount);
         write(header.additionalResourceRecordsCount);
     }
@@ -55,7 +55,7 @@ public class Buffer {
         header.transactionId = readShort();
         header.flags = readShort();
         header.questionResourceRecordCount = readShort();
-        header.answerResourceRecordCount = readShort();
+        header.answerResourceRecordsCount = readShort();
         header.authorityResourceRecordsCount = readShort();
         header.additionalResourceRecordsCount = readShort();
         return header;
@@ -99,9 +99,9 @@ public class Buffer {
         if(message.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
             return message;
         }
-        if(message.header.answerResourceRecordCount > 0) {
-            message.answerRecordList = new ArrayList<DnsProtocol.ResourceRecord>(message.header.answerResourceRecordCount);
-            for (int i=0; i<message.header.answerResourceRecordCount; i++) {
+        if(message.header.answerResourceRecordsCount > 0) {
+            message.answerRecordList = new ArrayList<DnsProtocol.ResourceRecord>(message.header.answerResourceRecordsCount);
+            for (int i = 0; i<message.header.answerResourceRecordsCount; i++) {
                 message.answerRecordList.add(readResourceRecord());
             }
         }

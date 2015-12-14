@@ -280,14 +280,14 @@ public class DnsProtocol {
 
         short questionResourceRecordCount;
 
-        short answerResourceRecordCount;
+        short answerResourceRecordsCount;
 
         short authorityResourceRecordsCount;
 
         short additionalResourceRecordsCount;
 
-        public short getAnswerResourceRecordCount() {
-            return answerResourceRecordCount;
+        public short getAnswerResourceRecordsCount() {
+            return answerResourceRecordsCount;
         }
 
         public short getAuthorityResourceRecordsCount() {

@@ -2,6 +2,7 @@ package com.kendamasoft.dns;
 
 //import android.util.Log;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -10,12 +11,12 @@ import java.net.SocketAddress;
 /**
  * TCP connection implementation
  */
-public class ConnectionTcp extends Connection {
+public class DnsConnectionTcp extends DnsConnection {
 
     private SocketAddress dns;
     private Socket socket;
 
-    public ConnectionTcp() {
+    public DnsConnectionTcp() {
         try {
             dns = new InetSocketAddress(InetAddress.getByAddress(googleDnsAddress), DNS_PORT);
             initSocket();
@@ -24,7 +25,7 @@ public class ConnectionTcp extends Connection {
         }
     }
 
-    public ConnectionTcp(InetAddress dnsHost) {
+    public DnsConnectionTcp(InetAddress dnsHost) {
         if(dnsHost == null) {
             throw new NullPointerException("dnsHost is null");
         }
@@ -42,7 +43,7 @@ public class ConnectionTcp extends Connection {
         }
     }
 
-    protected void send(byte[] request) throws Exception {
+    protected void send(byte[] request) throws IOException {
         if(socket == null) {
             throw new IllegalStateException("Connection not open");
         }
@@ -56,23 +57,44 @@ public class ConnectionTcp extends Connection {
         socket.getOutputStream().write(request);
     }
 
-    protected byte[] receive() throws Exception {
+    protected byte[] receive() throws IOException {
         if(socket == null || !socket.isConnected()) {
             throw new IllegalStateException("Connection not open");
         }
         try {
-            byte[] lengthData = new byte[2];
-            int read = socket.getInputStream().read(lengthData);
-            if(read == -1) {
-                return null;
+            int expectedLength = readLength();
+            byte[] data = new byte[expectedLength];
+            int readLength = readFullBuffer(data);
+            if(readLength != expectedLength) {
+                throw new IOException("Unable to read all message data. Try again.");
             }
-            int length = (lengthData[0]&0xff) << 8 | (lengthData[1]&0xff);
-            byte[] data = new byte[length];
-            //noinspection ResultOfMethodCallIgnored
-            socket.getInputStream().read(data);
             return data;
         } finally {
             socket.close();
         }
+    }
+
+    private int readLength() throws IOException {
+        byte[] lengthBuf = new byte[2];
+        int lengthBufRead = readFullBuffer(lengthBuf);
+        if (lengthBufRead < 2) {
+            throw new IOException("Unable to read message length. Try resend message or connect to different server.");
+        }
+        int length = (lengthBuf[0] & 0xff) << 8 | (lengthBuf[1] & 0xff);
+        if(length <= 0) {
+            throw new IOException("Unable to read message length. Try resend message or connect to different server.");
+        }
+        return length;
+    }
+
+    private int readFullBuffer(byte[] buffer) throws IOException {
+        int bufLength = buffer.length;
+        int bufRead = 0;
+        int read;
+        do {
+            read = socket.getInputStream().read(buffer, bufRead, bufLength - bufRead);
+            bufRead += read;
+        } while (read != -1 && bufRead < bufLength);
+        return bufRead;
     }
 }

@@ -9,36 +9,42 @@ Usage:
     <code>
     ...
 
-    void lookupDns() throws Exception {
+    void lookupDns() {
 
         DnsProtocol.Message request = new MessageBuilder()
                 .setName("example.com")
                 .setType(DnsProtocol.RecordType.ANY)
                 .build();
 
-        DnsProtocol.Message response = new ConnectionUdp().doRequest(request);
-        if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
-            response = new ConnectionTcp().doRequest(request);
+        DnsProtocol.Message response;
+        try {
+            response = new DnsConnectionUdp().doRequest(request);
+            if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+                response = new DnsConnectionTcp().doRequest(request);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(); // @todo some logging
+            return;
         }
 
-        if(response.header.answerResourceRecordCount > 0) {
+        if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
             System.out.println("ANSWER:");
-            for(DnsProtocol.ResourceRecord record : response.answerRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
+                System.out.println(record);
             }
         }
 
-        if(response.header.authorityResourceRecordsCount > 0) {
+        if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
             System.out.println("AUTHORITY:");
-            for(DnsProtocol.ResourceRecord record : response.authorityRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
+                System.out.println(record);
             }
         }
 
-        if(response.header.additionalResourceRecordsCount > 0) {
+        if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
             System.out.println("ADDITIONAL:");
-            for(DnsProtocol.ResourceRecord record : response.additionalRecordList) {
-                System.out.println(record); // @todo replace
+            for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
+                System.out.println(record);
             }
         }
     }

@@ -18,7 +18,7 @@ repositories {
 ...
 
 dependencies {
-    compile(group: 'com.kendamasoft', name: 'dns-client', version: '0.9.2', ext: 'jar')
+    compile(group: 'com.kendamasoft', name: 'dns-client', version: '0.9.3', ext: 'jar')
 }
 ```
 
@@ -26,19 +26,19 @@ dependencies {
 ```java
     ...
 
-    void lookupDns() throws Exception {
+    void lookupDns() throws IOException {
 
         DnsProtocol.Message request = new MessageBuilder()
                 .setName("example.com")
                 .setType(DnsProtocol.RecordType.ANY)
                 .build();
 
-        DnsProtocol.Message response = new ConnectionUdp().doRequest(request);
-        if (response.getHeader().hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
-            response = new ConnectionTcp().doRequest(request);
+        DnsProtocol.Message response = new DnsConnectionUdp().doRequest(request);
+        if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+            response = new DnsConnectionTcp().doRequest(request);
         }
 
-        if(response.getHeader().getAnswerResourceRecordCount() > 0) {
+        if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
             System.out.println("ANSWER:");
             for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
                 System.out.println(record);

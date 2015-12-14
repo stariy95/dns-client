@@ -2,6 +2,7 @@ package com.kendamasoft.dns;
 
 //import android.util.Log;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -9,21 +10,22 @@ import java.net.InetAddress;
 /**
  * UDP connection implementation
  */
-public class ConnectionUdp extends Connection {
+public class DnsConnectionUdp extends DnsConnection {
 
     private InetAddress dns;
     private DatagramSocket socket;
 
-    public ConnectionUdp() {
+    public DnsConnectionUdp() {
         try {
             dns = InetAddress.getByAddress(googleDnsAddress);
             initSocket();
         } catch (Exception ex) {
+            ex.printStackTrace();
             // @todo Log.w(TAG, ex);
         }
     }
 
-    public ConnectionUdp(InetAddress dnsHost) {
+    public DnsConnectionUdp(InetAddress dnsHost) {
         if(dnsHost == null) {
             throw new NullPointerException("dnsHost is null");
         }
@@ -35,12 +37,13 @@ public class ConnectionUdp extends Connection {
         try {
             socket = new DatagramSocket();
         } catch (Exception ex) {
+            ex.printStackTrace();
             // @todo Log.w(TAG, ex);
         }
     }
 
     @Override
-    protected void send(byte[] request) throws Exception {
+    protected void send(byte[] request) throws IOException {
         if(socket == null) {
             throw new IllegalStateException("Connection not open");
         }
@@ -53,7 +56,7 @@ public class ConnectionUdp extends Connection {
     }
 
     @Override
-    protected byte[] receive() throws Exception {
+    protected byte[] receive() throws IOException {
         if(socket == null) {
             throw new IllegalStateException("Connection not open");
         }
