@@ -1,9 +1,6 @@
 buildscript {
     repositories {
-        mavenCentral()
-    }
-    dependencies {
-        //classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+        jcenter()
     }
 }
 
@@ -11,41 +8,98 @@ plugins {
     id "com.jfrog.bintray" version "1.4"
 }
 
-def currentVersion = '0.9.0'
-def gitUrl = 'https://github.com/stariy95/dns-client.git'   // Git repository URL
+def currentVersion = '0.9.1'
 def siteUrl = 'https://github.com/stariy95/dns-client'      // Homepage URL of the library
 
-group 'com.kendamasoft'
-version currentVersion
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
-apply plugin: 'java'
+    group 'com.kendamasoft'
+    version currentVersion
 
-sourceCompatibility = 1.7
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
-repositories {
-    mavenCentral()
+    dependencies {
+        testCompile 'junit:junit:4.7'
+    }
+
+    // custom tasks for creating source/javadoc jars
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    // add javadoc/source jar tasks as artifacts
+    artifacts {
+        archives sourcesJar, javadocJar
+    }
+
+    repositories {
+        jcenter()
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId group
+                artifactId 'dns-client'
+                version currentVersion
+
+                from components.java
+
+                artifact sourcesJar
+                artifact javadocJar
+            }
+        }
+    }
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def bintrayUser = properties.getProperty('bintray.user')
+    def bintrayApiKey = properties.getProperty('bintray.key')
+
+    bintray {
+        user = bintrayUser
+        key = bintrayApiKey
+
+        publications = ['mavenJava']
+        dryRun = false
+        publish = true
+
+        pkg {
+            repo = 'maven'
+            name = 'dns-client'
+            userOrg = user
+
+            desc = 'DNS Client is a small DNS client library intended primary for network utilities and testing applications'
+            websiteUrl = siteUrl
+            issueTrackerUrl = "${siteUrl}/issues"
+            vcsUrl = "${siteUrl}.git"
+            labels = ['DNS', 'client', 'java', 'android']
+            licenses = ['Apache-2.0']
+
+            version {
+                name = currentVersion
+                /*
+                mavenCentralSync {
+                    sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
+                    user = 'userToken' //OSS user token
+                    password = 'paasword' //OSS user password
+                    close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                }*/
+            }
+        }
+    }
 }
 
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-}
-
-javadoc {
-    options.overview = "overview.html" // relative to source root
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
 }
