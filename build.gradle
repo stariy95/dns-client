@@ -8,8 +8,9 @@ plugins {
     id "com.jfrog.bintray" version "1.4"
 }
 
-def currentVersion = '0.9.3'
+def currentVersion = '0.9.4'
 def siteUrl = 'https://github.com/stariy95/dns-client'      // Homepage URL of the library
+def projectDescription = 'DNS Client is a small DNS client library intended primary for network utilities and testing applications'
 
 allprojects {
     apply plugin: 'java'
@@ -57,6 +58,25 @@ allprojects {
                 artifactId 'dns-client'
                 version currentVersion
 
+                pom.withXml {
+                    def root = asNode()
+                    root.appendNode('name', 'dns-client')
+                    root.appendNode('description', projectDescription)
+                    root.appendNode('url', siteUrl)
+                    root.appendNode('inceptionYear', '2015')
+
+                    def license = root.appendNode('licenses').appendNode('license')
+                    license.appendNode('name', 'The Apache Software License, Version 2.0')
+                    license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                    license.appendNode('distribution', 'repo')
+
+                    root.appendNode('developers').appendNode('developer').appendNode('name', 'kendamasoft.com')
+
+                    def scm = root.appendNode('scm')
+                    scm.appendNode('connection', "${siteUrl}.git")
+                    scm.appendNode('url', siteUrl)
+                }
+
                 from components.java
 
                 artifact sourcesJar
@@ -83,7 +103,7 @@ allprojects {
             name = 'dns-client'
             userOrg = user
 
-            desc = 'DNS Client is a small DNS client library intended primary for network utilities and testing applications'
+            desc = projectDescription
             websiteUrl = siteUrl
             issueTrackerUrl = "${siteUrl}/issues"
             vcsUrl = "${siteUrl}.git"

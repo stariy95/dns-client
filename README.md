@@ -6,59 +6,54 @@ It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>
 ## Installation:
 
 ### Gradle
-
-Add as a dependency to your ```build.gradle```:
 ```
-repositories {
-    maven {
-        url  "http://dl.bintray.com/stariy95/maven"
-    }
-}
-
-...
-
 dependencies {
-    compile(group: 'com.kendamasoft', name: 'dns-client', version: '0.9.3', ext: 'jar')
+    compile 'com.kendamasoft:dns-client:0.9.4'
 }
+```
+
+### Maven
+```
+<dependency>
+   <groupId>com.kendamasoft</groupId>
+   <artifactId>dns-client</artifactId>
+   <version>0.9.4</version>
+</dependency>
 ```
 
 ## Usage:
 ```java
     ...
 
-    void lookupDns() throws IOException {
+    DnsProtocol.Message request = new MessageBuilder()
+            .setName("example.com")
+            .setType(DnsProtocol.RecordType.ANY)
+            .build();
 
-        DnsProtocol.Message request = new MessageBuilder()
-                .setName("example.com")
-                .setType(DnsProtocol.RecordType.ANY)
-                .build();
+    DnsProtocol.Message response = new DnsConnectionUdp().doRequest(request);
+    if (response.getHeader().hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+        response = new DnsConnectionTcp().doRequest(request);
+    }
 
-        DnsProtocol.Message response = new DnsConnectionUdp().doRequest(request);
-        if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
-            response = new DnsConnectionTcp().doRequest(request);
-        }
-
-        if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
-            System.out.println("ANSWER:");
-            for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
-                System.out.println(record);
-            }
-        }
-
-        if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
-            System.out.println("AUTHORITY:");
-            for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
-                System.out.println(record);
-            }
-        }
-
-        if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
-            System.out.println("ADDITIONAL:");
-            for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
-                System.out.println(record);
-            }
+    if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
+        System.out.println("ANSWER:");
+        for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
+            System.out.println(record);
         }
     }
 
+    if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
+        System.out.println("AUTHORITY:");
+        for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
+            System.out.println(record);
+        }
+    }
+
+    if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
+        System.out.println("ADDITIONAL:");
+        for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
+            System.out.println(record);
+        }
+    }
     ...
 ```
