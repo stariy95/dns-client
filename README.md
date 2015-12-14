@@ -1,18 +1,14 @@
 # DNS Client
 
 DNS Client is a small DNS client library intended primary for network utilities and testing applications.
-It is fully compatible with Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.
+It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.
 
 ## Installation:
 
 ### Gradle
 
 Add as a dependency to your ```build.gradle```:
-```
-dependencies {
-    compile 'com.kendamasoft.dns-client:0.9.7'
-}
-```
+TBD
 
 ### Maven
 
