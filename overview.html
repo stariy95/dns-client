@@ -1,0 +1,51 @@
+<HTML>
+<BODY>
+Dns Client is a small DNS client library intended primary for network utilities and testing applications.<br>
+<br>
+It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.<br>
+<br>
+Usage:
+<pre>
+    <code>
+    ...
+
+    void lookupDns() throws Exception {
+
+        DnsProtocol.Message request = new MessageBuilder()
+                .setName("example.com")
+                .setType(DnsProtocol.RecordType.ANY)
+                .build();
+
+        DnsProtocol.Message response = new ConnectionUdp().doRequest(request);
+        if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+            response = new ConnectionTcp().doRequest(request);
+        }
+
+        if(response.header.answerResourceRecordCount > 0) {
+            System.out.println("ANSWER:");
+            for(DnsProtocol.ResourceRecord record : response.answerRecordList) {
+                System.out.println(record); // @todo replace
+            }
+        }
+
+        if(response.header.authorityResourceRecordsCount > 0) {
+            System.out.println("AUTHORITY:");
+            for(DnsProtocol.ResourceRecord record : response.authorityRecordList) {
+                System.out.println(record); // @todo replace
+            }
+        }
+
+        if(response.header.additionalResourceRecordsCount > 0) {
+            System.out.println("ADDITIONAL:");
+            for(DnsProtocol.ResourceRecord record : response.additionalRecordList) {
+                System.out.println(record); // @todo replace
+            }
+        }
+    }
+
+    ...
+    </code>
+</pre>
+
+</BODY>
+</HTML>
