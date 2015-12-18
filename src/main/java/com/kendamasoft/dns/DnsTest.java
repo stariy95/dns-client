@@ -4,7 +4,7 @@ class DnsTest {
 
     static public void main(String... args) {
         DnsTest test = new DnsTest();
-        test.requestDns("example.com");
+        test.requestDns("google.com");
     }
 
     public DnsTest() {
@@ -25,6 +25,10 @@ class DnsTest {
         } catch (Exception ex) {
             ex.printStackTrace();
             return;
+        }
+
+        for(DnsProtocol.ResourceRecord record : response.getAllRecords()) {
+            System.out.println(record);
         }
 
         if(response.getHeader().getAnswerResourceRecordsCount() > 0) {

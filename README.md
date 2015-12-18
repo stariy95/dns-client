@@ -1,6 +1,6 @@
 # DNS Client
 
-DNS Client is a small DNS client library intended primary for network utilities and testing applications.
+Small DNS client library intended primary for network utilities and testing applications.
 It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.
 
 ## Installation:
@@ -8,7 +8,7 @@ It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>
 ### Gradle
 ```
 dependencies {
-    compile 'com.kendamasoft:dns-client:0.9.4'
+    compile 'com.kendamasoft:dns-client:0.9.5'
 }
 ```
 
@@ -17,7 +17,7 @@ dependencies {
 <dependency>
    <groupId>com.kendamasoft</groupId>
    <artifactId>dns-client</artifactId>
-   <version>0.9.4</version>
+   <version>0.9.5</version>
 </dependency>
 ```
 
@@ -35,25 +35,8 @@ dependencies {
         response = new DnsConnectionTcp().doRequest(request);
     }
 
-    if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
-        System.out.println("ANSWER:");
-        for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
-            System.out.println(record);
-        }
-    }
-
-    if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
-        System.out.println("AUTHORITY:");
-        for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
-            System.out.println(record);
-        }
-    }
-
-    if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
-        System.out.println("ADDITIONAL:");
-        for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
-            System.out.println(record);
-        }
+    for(DnsProtocol.ResourceRecord record : response.getAllRecords()) {
+        System.out.println(record);
     }
     ...
 ```

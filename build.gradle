@@ -8,7 +8,7 @@ plugins {
     id "com.jfrog.bintray" version "1.4"
 }
 
-def currentVersion = '0.9.4'
+def currentVersion = '0.9.5'
 def siteUrl = 'https://github.com/stariy95/dns-client'      // Homepage URL of the library
 def projectDescription = 'DNS Client is a small DNS client library intended primary for network utilities and testing applications'
 
