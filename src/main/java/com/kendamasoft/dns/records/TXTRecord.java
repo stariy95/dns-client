@@ -1,12 +1,11 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 /**
  * Text record
  */
-public class TXTRecord extends Record {
+public class TXTRecord extends AbstractRecord {
     String data;
 
     @Override

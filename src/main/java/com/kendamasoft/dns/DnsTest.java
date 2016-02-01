@@ -1,55 +1,33 @@
 package com.kendamasoft.dns;
 
-class DnsTest {
+import com.kendamasoft.dns.protocol.*;
+
+final class DnsTest {
 
     static public void main(String... args) {
         DnsTest test = new DnsTest();
         test.requestDns("google.com");
     }
 
-    public DnsTest() {
+    private DnsTest() {
     }
 
-    public void requestDns(String domainName) {
-        DnsProtocol.Message request = new MessageBuilder()
+    private void requestDns(String domainName) {
+        Message request = new MessageBuilder()
                 .setName(domainName)
-                .setType(DnsProtocol.RecordType.ANY)
+                .setType(RecordType.ANY)
                 .build();
 
-        DnsProtocol.Message response;
+        Message response;
         try {
-            response = new DnsConnectionUdp().doRequest(request);
-            if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
-                response = new DnsConnectionTcp().doRequest(request);
-            }
+            response = new DnsConnectionAuto().doRequest(request);
         } catch (Exception ex) {
             ex.printStackTrace();
             return;
         }
 
-        for(DnsProtocol.ResourceRecord record : response.getAllRecords()) {
+        for(ResourceRecord record : response.getAllRecords()) {
             System.out.println(record);
-        }
-
-        if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
-            System.out.println("ANSWER:");
-            for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
-                System.out.println(record);
-            }
-        }
-
-        if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
-            System.out.println("AUTHORITY:");
-            for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
-                System.out.println(record);
-            }
-        }
-
-        if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
-            System.out.println("ADDITIONAL:");
-            for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
-                System.out.println(record);
-            }
         }
     }
 }

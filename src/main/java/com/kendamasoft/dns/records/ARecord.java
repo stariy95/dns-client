@@ -1,12 +1,11 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 /**
  * IPv4 address record
  */
-public class ARecord extends Record {
+public class ARecord extends AbstractRecord {
 
     final byte[] address = new byte[4];
 

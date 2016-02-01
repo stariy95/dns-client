@@ -1,14 +1,13 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 import java.net.InetAddress;
 
 /**
  * IPv6 address record
  */
-public class AAAARecord extends Record {
+public class AAAARecord extends AbstractRecord {
 
     final byte[] address = new byte[16];
 

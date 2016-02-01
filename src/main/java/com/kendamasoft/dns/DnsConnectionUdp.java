@@ -2,6 +2,8 @@ package com.kendamasoft.dns;
 
 //import android.util.Log;
 
+import com.kendamasoft.dns.protocol.DnsProtocol;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -60,7 +62,7 @@ public class DnsConnectionUdp extends DnsConnection {
         if(socket == null) {
             throw new IllegalStateException("Connection not open");
         }
-        byte[] data = new byte[DnsProtocol.MAX_MESSAGE_LENGTH];
+        byte[] data = new byte[DnsConnection.MAX_MESSAGE_LENGTH];
         try {
             DatagramPacket packet = new DatagramPacket(data, data.length);
             socket.receive(packet);

@@ -1,12 +1,11 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 /**
  * Mail exchange record
  */
-public class MXRecord extends Record {
+public class MXRecord extends AbstractRecord {
 
     int priority;
 

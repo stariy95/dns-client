@@ -1,12 +1,11 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 /**
  * Start of [a zone of] authority record
  */
-public class SOARecord extends Record {
+public class SOARecord extends AbstractRecord {
 
     String mName;
 

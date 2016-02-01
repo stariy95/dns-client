@@ -1,5 +1,6 @@
-package com.kendamasoft.dns;
+package com.kendamasoft.dns.protocol;
 
+import com.kendamasoft.dns.protocol.Buffer;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -1,8 +1,7 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.DnsProtocol;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
+import com.kendamasoft.dns.protocol.RecordType;
 
 /**
  * Not Supported Resource Record <br>
@@ -10,14 +9,14 @@ import com.kendamasoft.dns.Record;
  * for unknown type use {@link UnknownRecord#getTypeId()} to get type code. <br>
  * Raw data can be retrieved via {@link UnknownRecord#getData()} method
  */
-public class UnknownRecord extends Record {
+public class UnknownRecord extends AbstractRecord {
 
-    final DnsProtocol.RecordType type;
+    final RecordType type;
     final short recordTypeId;
     byte[] data;
 
 
-    public UnknownRecord(DnsProtocol.RecordType type, short id) {
+    public UnknownRecord(RecordType type, short id) {
         this.type = type;
         recordTypeId = id;
     }
@@ -33,14 +32,14 @@ public class UnknownRecord extends Record {
      * @return record type if known or null
      * @see UnknownRecord#getTypeId()
      */
-    public DnsProtocol.RecordType getType() {
+    public RecordType getType() {
         return type;
     }
 
     /**
      * @return code of record type
      * @see UnknownRecord#getType()
-     * @see com.kendamasoft.dns.DnsProtocol.RecordType
+     * @see RecordType
      */
     public short getTypeId() {
         return recordTypeId;

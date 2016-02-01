@@ -1,6 +1,8 @@
-package com.kendamasoft.dns;
+package com.kendamasoft.dns.protocol;
 
 //import android.util.Log;
+
+import com.kendamasoft.dns.DnsConnection;
 
 import java.util.ArrayList;
 
@@ -8,19 +10,19 @@ import java.util.ArrayList;
  * Byte buffer utility functions.<br>
  * <b><i>Only for internal use.</i></b>
  */
-public class Buffer {
+public final class Buffer {
 
-    private byte[] data = new byte[DnsProtocol.MAX_MESSAGE_LENGTH];
+    private byte[] data;
 
     private int length = 0;
 
     private int mark = 0;
 
-    Buffer() {
-        data = new byte[DnsProtocol.MAX_MESSAGE_LENGTH];
+    public Buffer() {
+        data = new byte[DnsConnection.MAX_MESSAGE_LENGTH];
     }
 
-    Buffer(byte[] data) {
+    public Buffer(byte[] data) {
         this.data = data;
         this.length = data.length;
     }
@@ -29,19 +31,13 @@ public class Buffer {
         return length;
     }
 
-    byte[] getData() {
+    public byte[] getData() {
         byte[] result = new byte[length];
         System.arraycopy(data, 0, result, 0, length);
         return result;
     }
 
-    private void checkRange() {
-        if(mark >= length) {
-            throw new ArrayIndexOutOfBoundsException("Buffer overflow. Tried to read after it's end. Buffer length = " + length);
-        }
-    }
-
-    void write(DnsProtocol.Header header) {
+    void write(Header header) {
         write(header.transactionId);
         write(header.flags);
         write(header.questionResourceRecordCount);
@@ -50,8 +46,8 @@ public class Buffer {
         write(header.additionalResourceRecordsCount);
     }
 
-    DnsProtocol.Header readHeader() {
-        DnsProtocol.Header header = new DnsProtocol.Header();
+    Header readHeader() {
+        Header header = new Header();
         header.transactionId = readShort();
         header.flags = readShort();
         header.questionResourceRecordCount = readShort();
@@ -61,25 +57,25 @@ public class Buffer {
         return header;
     }
 
-    void write(DnsProtocol.QuestionEntry questionEntry) {
+    void write(QuestionEntry questionEntry) {
         write(questionEntry.name);
         write(questionEntry.type);
         write(questionEntry.questionClass);
     }
 
-    DnsProtocol.QuestionEntry readQuestionEntry() {
-        DnsProtocol.QuestionEntry questionEntry = new DnsProtocol.QuestionEntry();
+    QuestionEntry readQuestionEntry() {
+        QuestionEntry questionEntry = new QuestionEntry();
         questionEntry.name = readString();
         questionEntry.type = readShort();
         questionEntry.questionClass = readShort();
         return questionEntry;
     }
 
-    DnsProtocol.ResourceRecord readResourceRecord() {
-        DnsProtocol.ResourceRecord record = new DnsProtocol.ResourceRecord();
+    ResourceRecord readResourceRecord() {
+        ResourceRecord record = new ResourceRecord();
         record.name = readString();
         record.recordTypeId = readShort();
-        record.recordType = DnsProtocol.RecordType.getById(record.recordTypeId);
+        record.recordType = RecordType.getById(record.recordTypeId);
         record.recordClass = readShort();
         record.ttl = readUint32();
         record.dataLength = readShort();
@@ -87,32 +83,32 @@ public class Buffer {
         return record;
     }
 
-    void write(DnsProtocol.Message message) {
+    public void write(Message message) {
         write(message.header);
         write(message.questionEntry);
     }
 
-    DnsProtocol.Message readMessage() {
-        DnsProtocol.Message message = new DnsProtocol.Message();
+    public Message readMessage() {
+        Message message = new Message();
         message.header = readHeader();
         message.questionEntry = readQuestionEntry();
-        if(message.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
+        if(message.header.hasFlag(Header.FLAG_TRUNCATION)) {
             return message;
         }
         if(message.header.answerResourceRecordsCount > 0) {
-            message.answerRecordList = new ArrayList<DnsProtocol.ResourceRecord>(message.header.answerResourceRecordsCount);
+            message.answerRecordList = new ArrayList<ResourceRecord>(message.header.answerResourceRecordsCount);
             for (int i = 0; i<message.header.answerResourceRecordsCount; i++) {
                 message.answerRecordList.add(readResourceRecord());
             }
         }
         if(message.header.authorityResourceRecordsCount > 0) {
-            message.authorityRecordList = new ArrayList<DnsProtocol.ResourceRecord>(message.header.authorityResourceRecordsCount);
+            message.authorityRecordList = new ArrayList<ResourceRecord>(message.header.authorityResourceRecordsCount);
             for (int i=0; i<message.header.authorityResourceRecordsCount; i++) {
                 message.authorityRecordList.add(readResourceRecord());
             }
         }
         if(message.header.additionalResourceRecordsCount > 0) {
-            message.additionalRecordList = new ArrayList<DnsProtocol.ResourceRecord>(message.header.additionalResourceRecordsCount);
+            message.additionalRecordList = new ArrayList<ResourceRecord>(message.header.additionalResourceRecordsCount);
             for (int i=0; i<message.header.additionalResourceRecordsCount; i++) {
                 message.additionalRecordList.add(readResourceRecord());
             }
@@ -208,7 +204,7 @@ public class Buffer {
     }
 
     public byte readByte() {
-        checkRange();
+        assert mark < length;
         return data[mark++];
     }
 
@@ -232,7 +228,7 @@ public class Buffer {
         advance(length);
     }
 
-    void advance(int advance) {
+    private void advance(int advance) {
         mark += advance;
     }
 

@@ -1,9 +1,9 @@
-package com.kendamasoft.dns;
+package com.kendamasoft.dns.protocol;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Builder class for DNS {@link com.kendamasoft.dns.DnsProtocol.Message message}<br>
+ * Builder class for DNS {@link Message message}<br>
  * Usage:<br>
  * <pre><code>
  *     ...
@@ -20,7 +20,7 @@ public class MessageBuilder {
 
     private String name;
 
-    private DnsProtocol.RecordType type = DnsProtocol.RecordType.A;
+    private RecordType type = RecordType.A;
 
     public MessageBuilder() {
     }
@@ -38,32 +38,32 @@ public class MessageBuilder {
      * @param type of resource records to lookup
      * @return builder
      */
-    public MessageBuilder setType(DnsProtocol.RecordType type) {
+    public MessageBuilder setType(RecordType type) {
         this.type = type;
         return this;
     }
 
-    private DnsProtocol.Header  buildHeader() {
-        DnsProtocol.Header header = new DnsProtocol.Header();
+    private Header buildHeader() {
+        Header header = new Header();
         header.transactionId = (short)id.incrementAndGet();
-        header.flags = DnsProtocol.Header.FLAG_RECURSION_DESIRED;
+        header.flags = Header.FLAG_RECURSION_DESIRED;
         header.questionResourceRecordCount = 1;
         return header;
     }
 
-    private DnsProtocol.QuestionEntry buildEntry() {
-        DnsProtocol.QuestionEntry questionEntry = new DnsProtocol.QuestionEntry();
+    private QuestionEntry buildEntry() {
+        QuestionEntry questionEntry = new QuestionEntry();
         questionEntry.name = name;
         questionEntry.type = type.getId();
-        questionEntry.questionClass = DnsProtocol.QUESTION_CLASS_IN;
+        questionEntry.questionClass = QuestionEntry.QUESTION_CLASS_IN;
         return questionEntry;
     }
 
     /**
      * @return build message ready to send
      */
-    public DnsProtocol.Message build() {
-        DnsProtocol.Message message = new DnsProtocol.Message();
+    public Message build() {
+        Message message = new Message();
         message.header = buildHeader();
         message.questionEntry = buildEntry();
         return message;

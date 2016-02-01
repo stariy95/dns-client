@@ -1,12 +1,11 @@
 package com.kendamasoft.dns.records;
 
-import com.kendamasoft.dns.Buffer;
-import com.kendamasoft.dns.Record;
+import com.kendamasoft.dns.protocol.Buffer;
 
 /**
  * Certification Authority Authorization
  */
-public class CAARecord extends Record {
+public class CAARecord extends AbstractRecord {
 
     byte flag;
     String tag;
