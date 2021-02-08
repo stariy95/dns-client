@@ -1,129 +1,97 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.4"
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
-def currentVersion = '1.0.0'
-def siteUrl = 'https://github.com/stariy95/dns-client'      // Homepage URL of the library
+repositories {
+    mavenCentral()
+}
+
+def siteUrl = 'https://github.com/stariy95/dns-client'
 def projectDescription = 'Compact DNS client library intended primary for network utilities and testing applications'
 
-allprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
+group 'com.kendamasoft'
+version '1.1.0'
 
-    group 'com.kendamasoft'
-    version currentVersion
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+dependencies {
+    testImplementation 'junit:junit:4.13.1'
+}
 
-    dependencies {
-        testCompile 'junit:junit:4.7'
-    }
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
-    // custom tasks for creating source/javadoc jars
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def ossrhUsername = properties.getProperty('ossrh.user')
+def ossrhKey = properties.getProperty('ossrh.key')
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    javadoc {
-        options.overview = "overview.html"
-    }
-
-    // add javadoc/source jar tasks as artifacts
-    artifacts {
-        archives sourcesJar, javadocJar
-    }
-
+publishing {
     repositories {
-        jcenter()
-    }
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                groupId group
-                artifactId 'dns-client'
-                version currentVersion
-
-                pom.withXml {
-                    def root = asNode()
-                    root.appendNode('name', 'dns-client')
-                    root.appendNode('description', projectDescription)
-                    root.appendNode('url', siteUrl)
-                    root.appendNode('inceptionYear', '2015')
-
-                    def license = root.appendNode('licenses').appendNode('license')
-                    license.appendNode('name', 'The Apache Software License, Version 2.0')
-                    license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                    license.appendNode('distribution', 'repo')
-
-                    root.appendNode('developers').appendNode('developer').appendNode('name', 'kendamasoft.com')
-
-                    def scm = root.appendNode('scm')
-                    scm.appendNode('connection', "${siteUrl}.git")
-                    scm.appendNode('url', siteUrl)
-                }
-
-                from components.java
-
-                artifact sourcesJar
-                artifact javadocJar
+            credentials  {
+                username ossrhUsername
+                password ossrhKey
             }
         }
     }
 
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    def bintrayUser = properties.getProperty('bintray.user')
-    def bintrayApiKey = properties.getProperty('bintray.key')
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
 
-    bintray {
-        user = bintrayUser
-        key = bintrayApiKey
-
-        publications = ['mavenJava']
-        dryRun = false
-        publish = true
-
-        pkg {
-            repo = 'maven'
-            name = 'dns-client'
-            userOrg = user
-
-            desc = projectDescription
-            websiteUrl = siteUrl
-            issueTrackerUrl = "${siteUrl}/issues"
-            vcsUrl = "${siteUrl}.git"
-            labels = ['DNS', 'client', 'java', 'android']
-            licenses = ['Apache-2.0']
-
-            version {
-                name = currentVersion
-                /*
-                mavenCentralSync {
-                    sync = false //Optional (true by default). Determines whether to sync the version to Maven Central.
-                    user = 'userToken' //OSS user token
-                    password = 'paasword' //OSS user password
-                    close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-                }*/
+            pom {
+                name = project.name
+                description = projectDescription
+                url = siteUrl
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'kendamasoft.com'
+                    }
+                }
+                scm {
+                    connection = "scm:git:${siteUrl}"
+                    url = siteUrl
+                }
             }
         }
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+signing {
+    required { !version.endsWith("SNAPSHOT") }
+    useGpgCmd()
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    options.overview = "overview.html"
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+wrapper {
+    gradleVersion = '6.8.2'
 }
