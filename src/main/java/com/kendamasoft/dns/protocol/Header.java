@@ -26,6 +26,12 @@ public final class Header {
     static public final int FLAG_RECURSION_DESIRED      = (1 << 8);
     static public final int FLAG_RECURSION_AVAILABLE    = (1 << 7);
 
+    static public final int ERROR_FORMAT          = 0x1;
+    static public final int ERROR_SERVER_FAILURE  = 0x2;
+    static public final int ERROR_NAME            = 0x3;
+    static public final int ERROR_NOT_IMPLEMENTED = 0x4;
+    static public final int ERROR_REFUSED         = 0x5;
+
     short transactionId;
 
     /**

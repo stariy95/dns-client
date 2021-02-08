@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MessageBuilder {
 
-    static private AtomicInteger id = new AtomicInteger();
+    static private final AtomicInteger id = new AtomicInteger();
 
     private String name;
 

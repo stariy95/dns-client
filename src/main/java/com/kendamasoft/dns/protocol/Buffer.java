@@ -1,7 +1,5 @@
 package com.kendamasoft.dns.protocol;
 
-//import android.util.Log;
-
 import com.kendamasoft.dns.DnsConnection;
 
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.ArrayList;
  */
 public final class Buffer {
 
-    private byte[] data;
+    private final byte[] data;
 
     private int length = 0;
 
@@ -220,7 +218,7 @@ public final class Buffer {
     }
 
     public long readUint32() {
-        return ((readShort() & 0xFFFF) << 16) | (readShort() & 0xFFFF);
+        return ((long) (readShort() & 0xFFFF) << 16) | (readShort() & 0xFFFF);
     }
 
     public void fill(byte[] data, int length) {

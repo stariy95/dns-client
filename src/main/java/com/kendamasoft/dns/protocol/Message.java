@@ -9,6 +9,9 @@ import java.util.List;
  * DNS protocol message model
  */
 public final class Message {
+
+    private static final Comparator<ResourceRecord> COMPARATOR = new ResourceRecordComparator();
+
     Header header;
     QuestionEntry questionEntry;
     List<ResourceRecord> answerRecordList;
@@ -23,9 +26,9 @@ public final class Message {
      * @return answer section resource records
      */
     public List<ResourceRecord> getAnswerRecordList() {
-        if(answerRecordList == null)
-            //noinspection unchecked
-            return Collections.EMPTY_LIST;
+        if(answerRecordList == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(answerRecordList);
     }
 
@@ -33,9 +36,9 @@ public final class Message {
      * @return authority section resource records
      */
     public List<ResourceRecord> getAuthorityRecordList() {
-        if(authorityRecordList == null)
-            //noinspection unchecked
-            return Collections.EMPTY_LIST;
+        if(authorityRecordList == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(authorityRecordList);
     }
 
@@ -43,9 +46,9 @@ public final class Message {
      * @return additional section resource records
      */
     public List<ResourceRecord> getAdditionalRecordList() {
-        if(additionalRecordList == null)
-            //noinspection unchecked
-            return Collections.EMPTY_LIST;
+        if(additionalRecordList == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(additionalRecordList);
     }
 
@@ -58,7 +61,7 @@ public final class Message {
      * @see Message#getAdditionalRecordList()
      */
     public List<ResourceRecord> getAllRecords() {
-        List<ResourceRecord> result = new ArrayList<ResourceRecord>();
+        List<ResourceRecord> result = new ArrayList<>();
         if(answerRecordList != null) {
             result.addAll(answerRecordList);
         }
@@ -68,12 +71,14 @@ public final class Message {
         if(additionalRecordList != null) {
             result.addAll(additionalRecordList);
         }
-        Collections.sort(result, new Comparator<ResourceRecord>() {
-            @Override
-            public int compare(ResourceRecord o1, ResourceRecord o2) {
-                return o1.recordTypeId - o2.recordTypeId;
-            }
-        });
+        Collections.sort(result, COMPARATOR);
         return result;
+    }
+
+    private static final class ResourceRecordComparator implements Comparator<ResourceRecord> {
+        @Override
+        public int compare(ResourceRecord o1, ResourceRecord o2) {
+            return o1.recordTypeId - o2.recordTypeId;
+        }
     }
 }

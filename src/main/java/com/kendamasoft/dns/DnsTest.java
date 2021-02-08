@@ -1,6 +1,9 @@
 package com.kendamasoft.dns;
 
-import com.kendamasoft.dns.protocol.*;
+import com.kendamasoft.dns.protocol.Message;
+import com.kendamasoft.dns.protocol.MessageBuilder;
+import com.kendamasoft.dns.protocol.RecordType;
+import com.kendamasoft.dns.protocol.ResourceRecord;
 
 final class DnsTest {
 
@@ -15,12 +18,12 @@ final class DnsTest {
     private void requestDns(String domainName) {
         Message request = new MessageBuilder()
                 .setName(domainName)
-                .setType(RecordType.ANY)
+                .setType(RecordType.MX)
                 .build();
 
         Message response;
         try {
-            response = new DnsConnectionAuto().doRequest(request);
+            response = new DnsConnectionDoh("https://1.1.1.1/dns-query").doRequest(request);
         } catch (Exception ex) {
             ex.printStackTrace();
             return;

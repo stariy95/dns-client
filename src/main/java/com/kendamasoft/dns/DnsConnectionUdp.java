@@ -1,9 +1,5 @@
 package com.kendamasoft.dns;
 
-//import android.util.Log;
-
-import com.kendamasoft.dns.protocol.DnsProtocol;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -23,7 +19,6 @@ public class DnsConnectionUdp extends DnsConnection {
             initSocket();
         } catch (Exception ex) {
             ex.printStackTrace();
-            // @todo Log.w(TAG, ex);
         }
     }
 
@@ -40,7 +35,6 @@ public class DnsConnectionUdp extends DnsConnection {
             socket = new DatagramSocket();
         } catch (Exception ex) {
             ex.printStackTrace();
-            // @todo Log.w(TAG, ex);
         }
     }
 

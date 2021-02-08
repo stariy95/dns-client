@@ -1,7 +1,5 @@
 package com.kendamasoft.dns;
 
-//import android.util.Log;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -21,7 +19,7 @@ public class DnsConnectionTcp extends DnsConnection {
             dns = new InetSocketAddress(InetAddress.getByAddress(googleDnsAddress), DNS_PORT);
             initSocket();
         } catch (Exception ex) {
-            // @todo Log.w(TAG, ex);
+            ex.printStackTrace();
         }
     }
 

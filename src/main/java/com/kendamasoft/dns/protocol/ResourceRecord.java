@@ -78,7 +78,7 @@ public final class ResourceRecord {
             content = new UnknownRecord(null, recordTypeId);
         } else {
             try {
-                content = recordType.getRecordClass().newInstance();
+                content = recordType.getRecordClass().getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
                 content = new UnknownRecord(recordType, recordTypeId);
             }
