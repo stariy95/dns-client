@@ -2,7 +2,7 @@
 <BODY>
 Dns Client is a small DNS client library intended primary for network utilities and testing applications.<br>
 <br>
-It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.<br>
+It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 7</b> and newer.<br>
 <br>
 Usage:
 <pre>
@@ -11,12 +11,12 @@ Usage:
 
     void lookupDns() {
 
-        DnsProtocol.Message request = new MessageBuilder()
+        Message request = new MessageBuilder()
                 .setName("example.com")
-                .setType(DnsProtocol.RecordType.ANY)
+                .setType(RecordType.ANY)
                 .build();
 
-        DnsProtocol.Message response;
+        Message response;
         try {
             response = new DnsConnectionUdp().doRequest(request);
             if (response.header.hasFlag(DnsProtocol.Header.FLAG_TRUNCATION)) {
@@ -27,21 +27,21 @@ Usage:
             return;
         }
 
-        if(response.getHeader().getAnswerResourceRecordsCount() > 0) {
+        if(response.getHeader().getAnswerResourceRecordsCount() &gt; 0) {
             System.out.println("ANSWER:");
             for(DnsProtocol.ResourceRecord record : response.getAnswerRecordList()) {
                 System.out.println(record);
             }
         }
 
-        if(response.getHeader().getAuthorityResourceRecordsCount() > 0) {
+        if(response.getHeader().getAuthorityResourceRecordsCount() &gt; 0) {
             System.out.println("AUTHORITY:");
             for(DnsProtocol.ResourceRecord record : response.getAuthorityRecordList()) {
                 System.out.println(record);
             }
         }
 
-        if(response.getHeader().getAdditionalResourceRecordsCount() > 0) {
+        if(response.getHeader().getAdditionalResourceRecordsCount() &gt; 0) {
             System.out.println("ADDITIONAL:");
             for(DnsProtocol.ResourceRecord record : response.getAdditionalRecordList()) {
                 System.out.println(record);

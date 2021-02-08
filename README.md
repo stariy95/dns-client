@@ -1,14 +1,25 @@
 # DNS Client
 
 Compact DNS client library intended primary for network utilities and testing applications.
-It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 6</b> and newer.
+It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 7</b> and newer.
+
+## Release Notes
+
+### 1.1.0
+
+- Initial support for DNS-over-HTTPS protocol
+- Support additional records types
+
+### 1.0.0
+
+- Initial release
 
 ## Installation:
 
 ### Gradle
 ```
 dependencies {
-    compile 'com.kendamasoft:dns-client:1.0.0'
+    compile 'com.kendamasoft:dns-client:1.1.0'
 }
 ```
 
@@ -17,22 +28,28 @@ dependencies {
 <dependency>
    <groupId>com.kendamasoft</groupId>
    <artifactId>dns-client</artifactId>
-   <version>1.0.0</version>
+   <version>1.1.0</version>
 </dependency>
 ```
 
 ## Usage:
+
 ```java
-    ...
+import java.io.IOException;
+import com.kendamasoft.dns.protocol.*;
 
-    Message request = new MessageBuilder()
-            .setName("example.com")
-            .setType(DnsProtocol.RecordType.ANY)
-            .build();
+public class DnsTest {
 
-    Message response = new DnsConnectionAuto().doRequest(request);
-    for(DnsProtocol.ResourceRecord record : response.getAllRecords()) {
-        System.out.println(record);
+    static public void main(String... args) throws IOException {
+        Message request = new MessageBuilder()
+                .setName("example.com")
+                .setType(RecordType.ANY)
+                .build();
+
+        Message response = new DnsConnectionAuto().doRequest(request);
+        for (ResourceRecord record : response.getAllRecords()) {
+            System.out.println(record);
+        }
     }
-    ...
+}
 ```
