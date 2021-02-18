@@ -33,7 +33,9 @@ java {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+if(project.rootProject.file('local.properties')) {
+    properties.load(project.rootProject.file('local.properties')?.newDataInputStream())
+}
 def ossrhUsername = properties.getProperty('ossrh.user')
 def ossrhKey = properties.getProperty('ossrh.key')
 
