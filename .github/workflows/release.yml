@@ -6,18 +6,22 @@ on:
 name: Create Release
 
 jobs:
-  build:
+  # Prepares new GitHub release for the tag and exposes required variables for dependent jobs
+  prepare-release:
     name: Create Release
     runs-on: ubuntu-20.04
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+      version: ${{ steps.vars.outputs.version }}
+      upload_url:  ${{ steps.create_release.outputs.upload_url }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-      - name: Build project
-        run: chmod +x ./gradlew && ./gradlew assemble
-
-      - name: set version
+      - name: Set Version
         id: vars
         run: |
           RELEASE_TAG=${GITHUB_REF#refs/*/}
@@ -36,13 +40,39 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+  # Builds project and uploads artifacts to the release
+  build-and-upload:
+    name: Build and upload artifacts
+    needs: prepare-release
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Build project
+        run: chmod +x ./gradlew && ./gradlew assemble
+
+      - name: Upload Main Jar
+        id: upload-main-jar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/dns-client-${{ steps.vars.outputs.version }}.jar
-          asset_name: dns-client-${{ steps.vars.outputs.version }}.jar
-          asset_content_type: application/jar
+          upload_url: ${{ needs.prepare-release.outputs.upload_url }}
+          asset_path: ./build/libs/dns-client-${{ needs.prepare-release.outputs.version }}.jar
+          asset_name: dns-client-${{ needs.prepare-release.outputs.version }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload Javadocs
+        id: upload-javadocs
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare-release.outputs.upload_url }}
+          asset_path: ./build/libs/dns-client-${{ needs.prepare-release.outputs.version }}.jar
+          asset_name: dns-client-${{ needs.prepare-release.outputs.version }}-javadocs.jar
+          asset_content_type: application/java-archive
