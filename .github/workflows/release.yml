@@ -31,7 +31,18 @@ jobs:
 
       - name: set version
         id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF:1}
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo ::set-output name=version::${GITHUB_REF:1}
+
+      - name: debug
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.version }}
+          RELEASE_TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          echo ${RELEASE_VERSION}
+          echo ${RELEASE_TAG}
+          echo ${GITHUB_REF}
 
       - name: Upload Release Asset
         id: upload-release-asset
