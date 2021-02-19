@@ -24,15 +24,6 @@ jobs:
           echo ::set-output name=tag::${RELEASE_TAG}
           echo ::set-output name=version::${RELEASE_TAG:1}
 
-      - name: debug
-        env:
-          RELEASE_TAG: ${{ steps.vars.outputs.tag }}
-          RELEASE_VERSION: ${{ steps.vars.outputs.version }}
-        run: |
-          echo ${GITHUB_REF}
-          echo ${RELEASE_TAG}
-          echo ${RELEASE_VERSION}
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
