@@ -17,10 +17,17 @@ jobs:
       - name: Build project
         run: chmod +x ./gradlew && ./gradlew assemble
 
-      - name: Get release
-        uses: bruceadams/get-release@v1.2.2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: Experimental release
+          draft: false
+          prerelease: true
 
       - name: Upload Release Asset
         id: upload-release-asset
