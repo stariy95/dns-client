@@ -18,13 +18,13 @@ def siteUrl = 'https://github.com/stariy95/dns-client'
 def projectDescription = 'Compact DNS client library intended primary for network utilities and testing applications'
 
 group 'com.kendamasoft'
-version '1.1.0'
+version '1.2.0-SNAPSHOT'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 java {
@@ -97,3 +97,12 @@ javadoc {
 wrapper {
     gradleVersion = '6.8.2'
 }
+
+// Publishing instructions:
+//  1. commit and push release version
+//  2. deploy to a staging repository:
+//          ./gradlew publish
+//  3. push tag to trigger GitHub release:
+//          git tag -a -m "Experimental GitHub release" v1.1.0
+//          git push --follow-tags
+//  4. release staging repository to Maven Central
