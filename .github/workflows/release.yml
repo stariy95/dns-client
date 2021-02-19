@@ -40,7 +40,7 @@ jobs:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/libs/dns-client-${{ steps.vars.outputs.tag }}.jar
           asset_name: dns-client-${{ steps.vars.outputs.tag }}.jar
           asset_content_type: application/jar
