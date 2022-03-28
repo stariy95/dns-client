@@ -95,7 +95,7 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion = '6.8.2'
+    gradleVersion = '7.4.1'
 }
 
 // Publishing instructions:
