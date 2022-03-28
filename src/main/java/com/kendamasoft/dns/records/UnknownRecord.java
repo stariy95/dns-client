@@ -15,7 +15,6 @@ public class UnknownRecord extends AbstractRecord {
     final short recordTypeId;
     byte[] data;
 
-
     public UnknownRecord(RecordType type, short id) {
         this.type = type;
         recordTypeId = id;

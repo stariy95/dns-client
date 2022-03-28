@@ -19,11 +19,11 @@ public class DnsConnectionAuto extends DnsConnection {
     }
 
     @Override
-    protected void send(byte[] request) throws IOException {
+    protected void send(byte[] request) {
     }
 
     @Override
-    protected byte[] receive() throws IOException {
+    protected byte[] receive() {
         return null;
     }
 }

@@ -94,19 +94,19 @@ public final class Buffer {
             return message;
         }
         if(message.header.answerResourceRecordsCount > 0) {
-            message.answerRecordList = new ArrayList<ResourceRecord>(message.header.answerResourceRecordsCount);
+            message.answerRecordList = new ArrayList<>(message.header.answerResourceRecordsCount);
             for (int i = 0; i<message.header.answerResourceRecordsCount; i++) {
                 message.answerRecordList.add(readResourceRecord());
             }
         }
         if(message.header.authorityResourceRecordsCount > 0) {
-            message.authorityRecordList = new ArrayList<ResourceRecord>(message.header.authorityResourceRecordsCount);
+            message.authorityRecordList = new ArrayList<>(message.header.authorityResourceRecordsCount);
             for (int i=0; i<message.header.authorityResourceRecordsCount; i++) {
                 message.authorityRecordList.add(readResourceRecord());
             }
         }
         if(message.header.additionalResourceRecordsCount > 0) {
-            message.additionalRecordList = new ArrayList<ResourceRecord>(message.header.additionalResourceRecordsCount);
+            message.additionalRecordList = new ArrayList<>(message.header.additionalResourceRecordsCount);
             for (int i=0; i<message.header.additionalResourceRecordsCount; i++) {
                 message.additionalRecordList.add(readResourceRecord());
             }
@@ -248,7 +248,7 @@ public final class Buffer {
             sb.append("\n");
         }
         sb.append(">>>>>>> DATA BUFFER DUMP END <<<<<<");
-        System.out.println(sb.toString());
+        System.out.println(sb);
         //Log.d("DNS_DATA_BUFFER", sb.toString());
     }
 }

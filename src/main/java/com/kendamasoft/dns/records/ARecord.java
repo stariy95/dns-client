@@ -27,6 +27,6 @@ public class ARecord extends AbstractRecord {
             sb.append(b & 0xff).append(".");
         }
         sb.delete(sb.length() - 1, sb.length());
-        return "A " + sb.toString();
+        return "A " + sb;
     }
 }

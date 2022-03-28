@@ -30,7 +30,7 @@ public abstract class DnsConnection {
         buffer.write(request);
 
         send(buffer.getData());
-        byte data[] = receive();
+        byte[] data = receive();
 
         buffer = new Buffer(data);
         Message response = buffer.readMessage();
