@@ -72,7 +72,7 @@ public enum RecordType {
     /**
      * Host information
      */
-    HINFO ((short)13, UnknownRecord.class, "Host information"),
+    HINFO ((short)13, HINFORecord.class, "Host information"),
     /**
      * Responsible person
      */
@@ -206,9 +206,44 @@ public enum RecordType {
      */
     HTTPS((short)65, UnknownRecord.class, "HTTPS Binding"),
     /**
+     * Endpoint discovery for delegation synchronization
+     * @since 1.2.0
+     */
+    DSYNC((short)66, UnknownRecord.class, "Endpoint discovery for delegation synchronization"),
+    /**
+     * Hierarchical Host Identity Tag
+     * @since 1.2.0
+     */
+    HHIT((short)67, UnknownRecord.class, "Hierarchical Host Identity Tag"),
+    /**
+     * UAS Broadcast Remote Identification
+     * @since 1.2.0
+     */
+    BRID((short)68, UnknownRecord.class, "UAS Broadcast Remote Identification"),
+    /**
      * Obsolete: Sender Policy Framework
      */
     SPF  ((short)99, SPFRecord.class, "Obsolete: Sender Policy Framework"),
+    /**
+     * Node Identifier (ILNP)
+     * @since 1.2.0
+     */
+    NID((short)104, UnknownRecord.class, "Node Identifier (ILNP)"),
+    /**
+     * Locator 32 (ILNP)
+     * @since 1.2.0
+     */
+    L32((short)105, UnknownRecord.class, "Locator 32 (ILNP)"),
+    /**
+     * Locator 64 (ILNP)
+     * @since 1.2.0
+     */
+    L64((short)106, UnknownRecord.class, "Locator 64 (ILNP)"),
+    /**
+     * Locator Pointer (ILNP)
+     * @since 1.2.0
+     */
+    LP((short)107, UnknownRecord.class, "Locator Pointer (ILNP)"),
     /**
      * MAC address (EUI-48)
      * @since 1.1.0
@@ -219,6 +254,11 @@ public enum RecordType {
      * @since 1.1.0
      */
     EUI64((short)109, UnknownRecord.class, "MAC address (EUI-64)"),
+    /**
+     * NXDOMAIN indicator for Compact Denial of Existence
+     * @since 1.2.0
+     */
+    NXNAME((short)128, UnknownRecord.class, "NXDOMAIN indicator for Compact Denial of Existence"),
     /**
      * Secret key record
      */
@@ -243,6 +283,41 @@ public enum RecordType {
      * @since 1.1.0
      */
     URI((short)256, UnknownRecord.class, "Uniform Resource Identifier"),
+    /**
+     * Application Visibility and Control
+     * @since 1.2.0
+     */
+    AVC((short)258, UnknownRecord.class, "Application Visibility and Control"),
+    /**
+     * Digital Object Architecture
+     * @since 1.2.0
+     */
+    DOA((short)259, UnknownRecord.class, "Digital Object Architecture"),
+    /**
+     * Automatic Multicast Tunneling Relay
+     * @since 1.2.0
+     */
+    AMTRELAY((short)260, UnknownRecord.class, "Automatic Multicast Tunneling Relay"),
+    /**
+     * Resolver Information as Key/Value Pairs
+     * @since 1.2.0
+     */
+    RESINFO((short)261, UnknownRecord.class, "Resolver Information as Key/Value Pairs"),
+    /**
+     * Public wallet address
+     * @since 1.2.0
+     */
+    WALLET((short)262, UnknownRecord.class, "Public wallet address"),
+    /**
+     * BP Convergence Layer Adapter
+     * @since 1.2.0
+     */
+    CLA((short)263, UnknownRecord.class, "BP Convergence Layer Adapter"),
+    /**
+     * BP Node Number
+     * @since 1.2.0
+     */
+    IPN((short)264, UnknownRecord.class, "BP Node Number"),
     /**
      * DNSSEC Trust Authorities
      * @since 1.1.0

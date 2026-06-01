@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests RDATA parsing of each public record type by calling the public
  * {@link AbstractRecord#parseData(short, Buffer)} contract with crafted bytes and asserting
  * public getters / {@code toString()}. These are characterization tests: they pin current
- * behavior (including the known {@code CAARecord} "CCA" typo — see {@link Caa}).
+ * behavior of the parsing contract.
  */
 public class RecordsParseUnitTest {
 
@@ -176,6 +176,19 @@ public class RecordsParseUnitTest {
     }
 
     @Nested
+    class HINFORecordTests {
+        @Test
+        public void parsesCpuAndOsCharacterStrings() {
+            // RDATA: two <character-string>s, each a 1-byte length prefix + that many bytes.
+            byte[] rdata = concat(new byte[]{0x05}, ascii("Intel"), new byte[]{0x04}, ascii("Unix"));
+            HINFORecord record = new HINFORecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("HINFO Intel Unix", record.toString());
+        }
+    }
+
+    @Nested
     class Caa {
         @Test
         public void parsesFlagTagAndValue() {
@@ -184,8 +197,7 @@ public class RecordsParseUnitTest {
             CAARecord record = new CAARecord();
             record.parseData((short) rdata.length, new Buffer(rdata));
 
-            // BUG (pinned): CAARecord.toString() emits "CCA" — a typo for "CAA".
-            assertEquals("CCA issue ca.example.com", record.toString());
+            assertEquals("CAA issue ca.example.com", record.toString());
         }
     }
 

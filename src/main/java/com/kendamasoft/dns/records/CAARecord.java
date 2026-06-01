@@ -27,6 +27,6 @@ public class CAARecord extends AbstractRecord {
 
     @Override
     public String toString() {
-        return "CCA " + tag + " " + data;
+        return "CAA " + tag + " " + data;
     }
 }
