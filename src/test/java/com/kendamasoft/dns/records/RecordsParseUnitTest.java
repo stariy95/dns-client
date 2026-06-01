@@ -43,6 +43,11 @@ public class RecordsParseUnitTest {
         return s.getBytes(StandardCharsets.US_ASCII);
     }
 
+    /** Encode a {@code <character-string>}: 1-byte length prefix + the ASCII bytes. */
+    private static byte[] charString(String s) {
+        return concat(new byte[]{(byte) s.length()}, ascii(s));
+    }
+
     @Nested
     class ARecordTests {
         @Test
@@ -223,6 +228,213 @@ public class RecordsParseUnitTest {
             assertNull(record.getType());
             assertEquals((short) 9999, record.getTypeId());
             assertEquals("TYPE_9999", record.toString());
+        }
+    }
+
+    @Nested
+    class SRVRecordTests {
+        @Test
+        public void parsesPriorityWeightPortAndTarget() {
+            byte[] rdata = concat(new byte[]{0, 0, 0, 5, 0x01, (byte) 0xBB}, encodeName("host.example.com"));
+            SRVRecord record = new SRVRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(0, record.getPriority());
+            assertEquals(5, record.getWeight());
+            assertEquals(443, record.getPort());
+            assertEquals("host.example.com.", record.getTarget());
+            assertEquals("SRV 0 5 443 host.example.com.", record.toString());
+        }
+    }
+
+    @Nested
+    class KXRecordTests {
+        @Test
+        public void parsesPreferenceAndExchanger() {
+            byte[] rdata = concat(new byte[]{0, 1}, encodeName("kx.example.com"));
+            KXRecord record = new KXRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(1, record.getPreference());
+            assertEquals("KX 1 kx.example.com.", record.toString());
+        }
+    }
+
+    @Nested
+    class DNAMERecordTests {
+        @Test
+        public void parsesTargetName() {
+            byte[] rdata = encodeName("target.example.com");
+            DNAMERecord record = new DNAMERecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("target.example.com.", record.getName());
+            assertEquals("DNAME target.example.com.", record.toString());
+        }
+    }
+
+    @Nested
+    class URIRecordTests {
+        @Test
+        public void parsesPriorityWeightAndQuotedTarget() {
+            byte[] rdata = concat(new byte[]{0, 0x0A, 0, 1}, ascii("https://example.com/"));
+            URIRecord record = new URIRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(10, record.getPriority());
+            assertEquals(1, record.getWeight());
+            assertEquals("https://example.com/", record.getTarget());
+            assertEquals("URI 10 1 \"https://example.com/\"", record.toString());
+        }
+    }
+
+    @Nested
+    class NAPTRRecordTests {
+        @Test
+        public void parsesOrderPreferenceCharStringsAndReplacement() {
+            byte[] rdata = concat(
+                    new byte[]{0, 0x64, 0, 0x0A},
+                    charString("S"),
+                    charString("SIP+D2U"),
+                    charString(""),
+                    encodeName("_sip._udp.example.com"));
+            NAPTRRecord record = new NAPTRRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(100, record.getOrder());
+            assertEquals(10, record.getPreference());
+            assertEquals("S", record.getFlags());
+            assertEquals("SIP+D2U", record.getServices());
+            assertEquals("", record.getRegexp());
+            assertEquals("_sip._udp.example.com.", record.getReplacement());
+            assertEquals("NAPTR 100 10 \"S\" \"SIP+D2U\" \"\" _sip._udp.example.com.", record.toString());
+        }
+    }
+
+    @Nested
+    class SSHFPRecordTests {
+        @Test
+        public void parsesAlgorithmTypeAndHexFingerprint() {
+            byte[] rdata = {1, 2, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF};
+            SSHFPRecord record = new SSHFPRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(1, record.getAlgorithm());
+            assertEquals(2, record.getFingerprintType());
+            assertEquals("SSHFP 1 2 abcdef", record.toString());
+        }
+    }
+
+    @Nested
+    class TLSARecordTests {
+        @Test
+        public void parsesUsageSelectorMatchingAndHexData() {
+            byte[] rdata = {3, 1, 1, 0x12, 0x34};
+            TLSARecord record = new TLSARecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(3, record.getCertificateUsage());
+            assertEquals(1, record.getSelector());
+            assertEquals(1, record.getMatchingType());
+            assertEquals("TLSA 3 1 1 1234", record.toString());
+        }
+
+        @Test
+        public void smimeaSharesFormatButRelabels() {
+            byte[] rdata = {3, 1, 1, 0x12, 0x34};
+            SMIMEARecord record = new SMIMEARecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("SMIMEA 3 1 1 1234", record.toString());
+        }
+    }
+
+    @Nested
+    class DSRecordTests {
+        @Test
+        public void parsesKeyTagAlgorithmDigestTypeAndHexDigest() {
+            byte[] rdata = {0x30, 0x39, 8, 2, (byte) 0xDE, (byte) 0xAD};
+            DSRecord record = new DSRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(12345, record.getKeyTag());
+            assertEquals(8, record.getAlgorithm());
+            assertEquals(2, record.getDigestType());
+            assertEquals("DS 12345 8 2 dead", record.toString());
+        }
+
+        @Test
+        public void cdsSharesFormatButRelabels() {
+            byte[] rdata = {0x30, 0x39, 8, 2, (byte) 0xDE, (byte) 0xAD};
+            CDSRecord record = new CDSRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("CDS 12345 8 2 dead", record.toString());
+        }
+    }
+
+    @Nested
+    class DNSKEYRecordTests {
+        @Test
+        public void parsesFlagsProtocolAlgorithmAndBase64Key() {
+            byte[] rdata = concat(new byte[]{0x01, 0x00, 3, 8}, ascii("Man"));
+            DNSKEYRecord record = new DNSKEYRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(256, record.getFlags());
+            assertEquals(3, record.getProtocol());
+            assertEquals(8, record.getAlgorithm());
+            assertEquals("DNSKEY 256 3 8 TWFu", record.toString());
+        }
+
+        @Test
+        public void cdnskeySharesFormatButRelabels() {
+            byte[] rdata = concat(new byte[]{0x01, 0x00, 3, 8}, ascii("Man"));
+            CDNSKEYRecord record = new CDNSKEYRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("CDNSKEY 256 3 8 TWFu", record.toString());
+        }
+    }
+
+    @Nested
+    class EUIRecordTests {
+        @Test
+        public void eui48RendersHyphenHex() {
+            byte[] rdata = {0x00, 0x00, 0x5e, 0x00, 0x53, 0x2a};
+            EUI48Record record = new EUI48Record();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertArrayEquals(rdata, record.getAddress());
+            assertEquals("EUI48 00-00-5e-00-53-2a", record.toString());
+        }
+
+        @Test
+        public void eui64RendersHyphenHex() {
+            byte[] rdata = {0x00, 0x00, 0x5e, (byte) 0xef, 0x10, 0x00, 0x00, 0x2a};
+            EUI64Record record = new EUI64Record();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertArrayEquals(rdata, record.getAddress());
+            assertEquals("EUI64 00-00-5e-ef-10-00-00-2a", record.toString());
+        }
+    }
+
+    @Nested
+    class RecordDataTests {
+        @Test
+        public void base64MatchesKnownVectors() {
+            assertEquals("TWFu", RecordData.toBase64(ascii("Man")));
+            assertEquals("TWE=", RecordData.toBase64(ascii("Ma")));
+            assertEquals("TQ==", RecordData.toBase64(ascii("M")));
+            assertEquals("", RecordData.toBase64(new byte[0]));
+        }
+
+        @Test
+        public void hexFormatsLowercaseWithOptionalSeparator() {
+            byte[] data = {0x00, (byte) 0xab, (byte) 0xff};
+            assertEquals("00abff", RecordData.toHex(data));
+            assertEquals("00-ab-ff", RecordData.toHex(data, '-'));
         }
     }
 }

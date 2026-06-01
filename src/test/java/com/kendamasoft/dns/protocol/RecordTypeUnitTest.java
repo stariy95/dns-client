@@ -1,9 +1,6 @@
 package com.kendamasoft.dns.protocol;
 
-import com.kendamasoft.dns.records.AAAARecord;
-import com.kendamasoft.dns.records.ARecord;
-import com.kendamasoft.dns.records.HINFORecord;
-import com.kendamasoft.dns.records.MXRecord;
+import com.kendamasoft.dns.records.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +54,24 @@ public class RecordTypeUnitTest {
     public void newlyRegisteredTypesExposeDescriptions() {
         assertEquals(264, RecordType.IPN.getId());
         assertEquals("Resolver Information as Key/Value Pairs", RecordType.RESINFO.getDescription());
+    }
+
+    @Test
+    public void fullyParsedTypesAreWiredToTheirRecordClasses() {
+        assertEquals(SRVRecord.class, RecordType.SRV.getRecordClass());
+        assertEquals(NAPTRRecord.class, RecordType.NAPTR.getRecordClass());
+        assertEquals(KXRecord.class, RecordType.KX.getRecordClass());
+        assertEquals(DNAMERecord.class, RecordType.DNAME.getRecordClass());
+        assertEquals(URIRecord.class, RecordType.URI.getRecordClass());
+        assertEquals(SSHFPRecord.class, RecordType.SSHFP.getRecordClass());
+        assertEquals(DSRecord.class, RecordType.DS.getRecordClass());
+        assertEquals(CDSRecord.class, RecordType.CDS.getRecordClass());
+        assertEquals(DNSKEYRecord.class, RecordType.DNSKEY.getRecordClass());
+        assertEquals(CDNSKEYRecord.class, RecordType.CDNSKEY.getRecordClass());
+        assertEquals(TLSARecord.class, RecordType.TLSA.getRecordClass());
+        assertEquals(SMIMEARecord.class, RecordType.SMIMEA.getRecordClass());
+        assertEquals(EUI48Record.class, RecordType.EUI48.getRecordClass());
+        assertEquals(EUI64Record.class, RecordType.EUI64.getRecordClass());
     }
 
     @Test

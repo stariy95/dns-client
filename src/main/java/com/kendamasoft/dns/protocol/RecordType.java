@@ -12,14 +12,28 @@ import com.kendamasoft.dns.records.*;
  *   <li>{@link AAAARecord}
  *   <li>{@link ARecord}
  *   <li>{@link CAARecord}
+ *   <li>{@link CDNSKEYRecord}
+ *   <li>{@link CDSRecord}
  *   <li>{@link CNAMERecord}
+ *   <li>{@link DNAMERecord}
+ *   <li>{@link DNSKEYRecord}
+ *   <li>{@link DSRecord}
+ *   <li>{@link EUI48Record}
+ *   <li>{@link EUI64Record}
  *   <li>{@link HINFORecord}
+ *   <li>{@link KXRecord}
  *   <li>{@link MXRecord}
+ *   <li>{@link NAPTRRecord}
  *   <li>{@link NSRecord}
  *   <li>{@link PTRRecord}
+ *   <li>{@link SMIMEARecord}
  *   <li>{@link SOARecord}
  *   <li>{@link SPFRecord}
+ *   <li>{@link SRVRecord}
+ *   <li>{@link SSHFPRecord}
+ *   <li>{@link TLSARecord}
  *   <li>{@link TXTRecord}
+ *   <li>{@link URIRecord}
  * </ul>
  */
 public enum RecordType {
@@ -97,15 +111,15 @@ public enum RecordType {
     /**
      * Service locator
      */
-    SRV   ((short)33, UnknownRecord.class, "Service locator"),
+    SRV   ((short)33, SRVRecord.class, "Service locator"),
     /**
      * Naming Authority Pointer
      */
-    NAPTR ((short)35, UnknownRecord.class, "Naming Authority Pointer"),
+    NAPTR ((short)35, NAPTRRecord.class, "Naming Authority Pointer"),
     /**
      * Key eXchanger record
      */
-    KX    ((short)36, UnknownRecord.class, "Key eXchanger record"),
+    KX    ((short)36, KXRecord.class, "Key eXchanger record"),
     /**
      * Certificate record
      */
@@ -113,7 +127,7 @@ public enum RecordType {
     /**
      * Delegation Name
      */
-    DNAME ((short)39, UnknownRecord.class, "Delegation Name"),
+    DNAME ((short)39, DNAMERecord.class, "Delegation Name"),
     /**
      * This is a "pseudo DNS record type" needed to support EDNS
      * @since 1.1.0
@@ -126,11 +140,11 @@ public enum RecordType {
     /**
      * Delegation signer
      */
-    DS    ((short)43, UnknownRecord.class, "Delegation signer"),
+    DS    ((short)43, DSRecord.class, "Delegation signer"),
     /**
      * SSH Public Key Fingerprint
      */
-    SSHFP  ((short)44, UnknownRecord.class, "SSH Public Key Fingerprint"),
+    SSHFP  ((short)44, SSHFPRecord.class, "SSH Public Key Fingerprint"),
     /**
      * IPsec Key
      */
@@ -146,7 +160,7 @@ public enum RecordType {
     /**
      * DNS Key record
      */
-    DNSKEY((short)48, UnknownRecord.class, "DNS Key record"),
+    DNSKEY((short)48, DNSKEYRecord.class, "DNS Key record"),
     /**
      * DHCP identifier
      */
@@ -162,12 +176,12 @@ public enum RecordType {
     /**
      * TLSA certificate association
      */
-    TLSA((short)52, UnknownRecord.class, "TLSA certificate association"),
+    TLSA((short)52, TLSARecord.class, "TLSA certificate association"),
     /**
      * S/MIME cert association
      * @since 1.1.0
      */
-    SMIMEA((short)53, UnknownRecord.class, "S/MIME cert association"),
+    SMIMEA((short)53, SMIMEARecord.class, "S/MIME cert association"),
     /**
      * Host Identity Protocol
      */
@@ -175,11 +189,11 @@ public enum RecordType {
     /**
      * Child DS
      */
-    CDS((short)59, UnknownRecord.class, "Child DS"),
+    CDS((short)59, CDSRecord.class, "Child DS"),
     /**
      * Child DNSKEY
      */
-    CDNSKEY((short)60, UnknownRecord.class, "Child DNSKEY"),
+    CDNSKEY((short)60, CDNSKEYRecord.class, "Child DNSKEY"),
     /**
      * OpenPGP public key record
      * @since 1.1.0
@@ -248,12 +262,12 @@ public enum RecordType {
      * MAC address (EUI-48)
      * @since 1.1.0
      */
-    EUI48((short)108, UnknownRecord.class, "MAC address (EUI-48)"),
+    EUI48((short)108, EUI48Record.class, "MAC address (EUI-48)"),
     /**
      * MAC address (EUI-64)
      * @since 1.1.0
      */
-    EUI64((short)109, UnknownRecord.class, "MAC address (EUI-64)"),
+    EUI64((short)109, EUI64Record.class, "MAC address (EUI-64)"),
     /**
      * NXDOMAIN indicator for Compact Denial of Existence
      * @since 1.2.0
@@ -282,7 +296,7 @@ public enum RecordType {
      * Uniform Resource Identifier
      * @since 1.1.0
      */
-    URI((short)256, UnknownRecord.class, "Uniform Resource Identifier"),
+    URI((short)256, URIRecord.class, "Uniform Resource Identifier"),
     /**
      * Application Visibility and Control
      * @since 1.2.0
