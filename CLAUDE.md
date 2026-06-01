@@ -32,7 +32,7 @@ Use the Gradle wrapper (`./gradlew`); the project pins Gradle 8.14.5 (runs on JD
 ./gradlew test --tests 'com.kendamasoft.dns.protocol.BufferUnitTest.testReadByte'
 ```
 
-CI (`.github/workflows/build.yml`) runs `./gradlew assemble` on every push/PR — it does **not** run tests, so run them locally. Releases are tag-driven (`v*`) via `release.yml`; publishing to Sonatype/Maven Central is manual (`./gradlew publish`, then release the staging repo — see comments at the bottom of `build.gradle`).
+CI (`.github/workflows/build.yml`) runs `./gradlew assemble` on every push/PR — it does **not** run tests, so run them locally. Releases are tag-driven (`v*`) via `release.yml`; publishing to Maven Central is manual via the **Central Portal** (OSSRH was shut down 2025-06-30): `./gradlew publish` uploads through the OSSRH Staging API, then you finalize the deployment at central.sonatype.com. Credentials are a Central Portal **user token** in `local.properties` (`ossrh.user`/`ossrh.key`) — see the comments at the bottom of `build.gradle`.
 
 ## Architecture
 
