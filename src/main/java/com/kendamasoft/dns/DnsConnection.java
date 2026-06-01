@@ -11,6 +11,8 @@ import java.io.IOException;
  *
  * @see DnsConnectionUdp
  * @see DnsConnectionTcp
+ * @see DnsConnectionDoh
+ * @see DnsConnectionAuto
  */
 public abstract class DnsConnection {
 

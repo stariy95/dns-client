@@ -3,23 +3,24 @@ package com.kendamasoft.dns.protocol;
 import com.kendamasoft.dns.records.*;
 
 /**
- * Resource Records types with <b>{@link RecordType#getId() codes}</b> and <b>{@link RecordType#getDescription() desciprtion}</b>.<br>
- * <br>
- * Full list:<br>
- * <a href="https://en.wikipedia.org/wiki/List_of_DNS_record_types" target="_blank">https://en.wikipedia.org/wiki/List_of_DNS_record_types</a><br>
- * <br>
- * Fully supported only commonly used record types: <br>
- * {@link AAAARecord}<br>
- * {@link ARecord}<br>
- * {@link CAARecord}<br>
- * {@link CNAMERecord}<br>
- * {@link HINFORecord}<br>
- * {@link MXRecord}<br>
- * {@link NSRecord}<br>
- * {@link PTRRecord}<br>
- * {@link SOARecord}<br>
- * {@link SPFRecord}<br>
- * {@link TXTRecord}<br>
+ * Resource Records types with {@link RecordType#getId() codes} and {@link RecordType#getDescription() description}.
+ * <p>
+ * Full list see here:<br>
+ * <a href="https://en.wikipedia.org/wiki/List_of_DNS_record_types" target="_blank">https://en.wikipedia.org/wiki/List_of_DNS_record_types</a>
+ * <p>
+ * Fully supported are only commonly used record types: <ul>
+ *   <li>{@link AAAARecord}
+ *   <li>{@link ARecord}
+ *   <li>{@link CAARecord}
+ *   <li>{@link CNAMERecord}
+ *   <li>{@link HINFORecord}
+ *   <li>{@link MXRecord}
+ *   <li>{@link NSRecord}
+ *   <li>{@link PTRRecord}
+ *   <li>{@link SOARecord}
+ *   <li>{@link SPFRecord}
+ *   <li>{@link TXTRecord}
+ * </ul>
  */
 public enum RecordType {
     /* ********************************
