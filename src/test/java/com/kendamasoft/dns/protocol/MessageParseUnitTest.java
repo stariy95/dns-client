@@ -72,7 +72,7 @@ public class MessageParseUnitTest {
         assertEquals(RecordType.A, record.getRecordType());
         assertEquals(3600, record.getTtl());
 
-        assertTrue(record.getContent() instanceof ARecord);
+        assertInstanceOf(ARecord.class, record.getContent());
         ARecord a = (ARecord) record.getContent();
         assertArrayEquals(new byte[]{93, (byte) 184, (byte) 216, 34}, a.getAddress());
         assertEquals("A 93.184.216.34", a.toString());
