@@ -48,6 +48,16 @@ public class RecordsParseUnitTest {
         return concat(new byte[]{(byte) s.length()}, ascii(s));
     }
 
+    /** Big-endian unsigned 16-bit. */
+    private static byte[] u16(int v) {
+        return new byte[]{(byte) (v >>> 8), (byte) v};
+    }
+
+    /** Big-endian unsigned 32-bit. */
+    private static byte[] u32(long v) {
+        return new byte[]{(byte) (v >>> 24), (byte) (v >>> 16), (byte) (v >>> 8), (byte) v};
+    }
+
     @Nested
     class ARecordTests {
         @Test
@@ -421,6 +431,117 @@ public class RecordsParseUnitTest {
     }
 
     @Nested
+    class RRSIGRecordTests {
+        @Test
+        public void parsesFixedFieldsSignerNameAndBase64Signature() {
+            byte[] rdata = concat(
+                    u16(1),                 // type covered = A
+                    new byte[]{8, 2},       // algorithm = 8, labels = 2
+                    u32(86400),             // original TTL
+                    u32(1735689600L),       // expiration -> 20250101000000 UTC
+                    u32(1704067200L),       // inception  -> 20240101000000 UTC
+                    u16(12345),             // key tag
+                    encodeName("example.com"),
+                    ascii("Man"));          // signature -> base64 "TWFu"
+            RRSIGRecord record = new RRSIGRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(1, record.getTypeCovered());
+            assertEquals(8, record.getAlgorithm());
+            assertEquals(12345, record.getKeyTag());
+            assertEquals("example.com.", record.getSignerName());
+            assertEquals("RRSIG A 8 2 86400 20250101000000 20240101000000 12345 example.com. TWFu",
+                    record.toString());
+        }
+    }
+
+    @Nested
+    class NSECRecordTests {
+        @Test
+        public void parsesNextNameAndTypeBitmap() {
+            // Bitmap window 0, length 6: bits set for A(1), NS(2), RRSIG(46).
+            byte[] rdata = concat(
+                    encodeName("next.example.com"),
+                    new byte[]{0x00, 0x06, 0x60, 0x00, 0x00, 0x00, 0x00, 0x02});
+            NSECRecord record = new NSECRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("next.example.com.", record.getNextDomainName());
+            assertEquals(java.util.Arrays.asList(1, 2, 46), record.getTypes());
+            assertEquals("NSEC next.example.com. A NS RRSIG", record.toString());
+        }
+    }
+
+    @Nested
+    class NSEC3RecordTests {
+        @Test
+        public void parsesParametersSaltOwnerAndBitmap() {
+            byte[] rdata = concat(
+                    new byte[]{1, 1},                          // hash algorithm = 1, flags = 1
+                    u16(0),                                    // iterations
+                    new byte[]{0x02, (byte) 0xAB, (byte) 0xCD},// salt length 2 + salt
+                    new byte[]{0x06}, ascii("foobar"),         // hash length 6 + next hashed owner
+                    new byte[]{0x00, 0x06, 0x60, 0x00, 0x00, 0x00, 0x00, 0x02});
+            NSEC3Record record = new NSEC3Record();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(1, record.getHashAlgorithm());
+            assertEquals(0, record.getIterations());
+            // salt -> lowercase hex; next hashed owner -> base32hex of "foobar".
+            assertEquals("NSEC3 1 1 0 abcd CPNMUOJ1E8 A NS RRSIG", record.toString());
+        }
+
+        @Test
+        public void rendersEmptySaltAsDash() {
+            byte[] rdata = concat(
+                    new byte[]{1, 0},          // hash algorithm = 1, flags = 0
+                    u16(10),                   // iterations
+                    new byte[]{0x00},          // salt length 0
+                    new byte[]{0x01, 0x00});   // hash length 1 + 1-byte owner; no type bitmap
+            NSEC3Record record = new NSEC3Record();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("NSEC3 1 0 10 - 00", record.toString());
+        }
+    }
+
+    @Nested
+    class SVCBRecordTests {
+        private byte[] fixture() {
+            byte[] alpn = concat(charString("h3"), charString("h2"));
+            return concat(
+                    u16(1),                                       // SvcPriority
+                    encodeName("svc.example.net"),                // TargetName
+                    u16(1), u16(alpn.length), alpn,               // alpn="h3,h2"
+                    u16(3), u16(2), new byte[]{0x01, (byte) 0xBB},// port=443
+                    u16(4), u16(4), new byte[]{(byte) 192, 0, 2, 1}); // ipv4hint=192.0.2.1
+        }
+
+        @Test
+        public void parsesPriorityTargetAndSvcParams() {
+            byte[] rdata = fixture();
+            SVCBRecord record = new SVCBRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals(1, record.getSvcPriority());
+            assertEquals("svc.example.net.", record.getTargetName());
+            assertEquals(3, record.getParams().size());
+            assertEquals("SVCB 1 svc.example.net. alpn=\"h3,h2\" port=443 ipv4hint=192.0.2.1",
+                    record.toString());
+        }
+
+        @Test
+        public void httpsSharesFormatButRelabels() {
+            byte[] rdata = fixture();
+            HTTPSRecord record = new HTTPSRecord();
+            record.parseData((short) rdata.length, new Buffer(rdata));
+
+            assertEquals("HTTPS 1 svc.example.net. alpn=\"h3,h2\" port=443 ipv4hint=192.0.2.1",
+                    record.toString());
+        }
+    }
+
+    @Nested
     class RecordDataTests {
         @Test
         public void base64MatchesKnownVectors() {
@@ -435,6 +556,23 @@ public class RecordsParseUnitTest {
             byte[] data = {0x00, (byte) 0xab, (byte) 0xff};
             assertEquals("00abff", RecordData.toHex(data));
             assertEquals("00-ab-ff", RecordData.toHex(data, '-'));
+        }
+
+        @Test
+        public void base32HexMatchesRfc4648Vector() {
+            assertEquals("CPNMUOJ1E8", RecordData.toBase32Hex(ascii("foobar")));
+            assertEquals("", RecordData.toBase32Hex(new byte[0]));
+        }
+
+        @Test
+        public void sigTimeFormatsEpochSecondsAsUtc() {
+            assertEquals("20250101000000", RecordData.sigTime(1735689600L));
+        }
+
+        @Test
+        public void bitmapTypesDecodesWindows() {
+            byte[] bitmap = {0x00, 0x06, 0x60, 0x00, 0x00, 0x00, 0x00, 0x02};
+            assertEquals(java.util.Arrays.asList(1, 2, 46), RecordData.bitmapTypes(bitmap));
         }
     }
 }

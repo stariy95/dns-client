@@ -206,6 +206,15 @@ public final class Buffer {
         return data[mark++];
     }
 
+    /**
+     * @return current read cursor offset. Lets a record parser size a trailing field that follows a
+     *         variable-length name: {@code remaining = dataLength - (position() - startCapturedInParseData)}.
+     *         <b><i>Only for internal use.</i></b>
+     */
+    public int position() {
+        return mark;
+    }
+
     void write(short s) {
         data[length++] = (byte)(s >> 8);
         data[length++] = (byte) s;

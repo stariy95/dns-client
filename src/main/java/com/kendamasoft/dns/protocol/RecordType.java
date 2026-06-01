@@ -21,16 +21,21 @@ import com.kendamasoft.dns.records.*;
  *   <li>{@link EUI48Record}
  *   <li>{@link EUI64Record}
  *   <li>{@link HINFORecord}
+ *   <li>{@link HTTPSRecord}
  *   <li>{@link KXRecord}
  *   <li>{@link MXRecord}
  *   <li>{@link NAPTRRecord}
+ *   <li>{@link NSECRecord}
+ *   <li>{@link NSEC3Record}
  *   <li>{@link NSRecord}
  *   <li>{@link PTRRecord}
+ *   <li>{@link RRSIGRecord}
  *   <li>{@link SMIMEARecord}
  *   <li>{@link SOARecord}
  *   <li>{@link SPFRecord}
  *   <li>{@link SRVRecord}
  *   <li>{@link SSHFPRecord}
+ *   <li>{@link SVCBRecord}
  *   <li>{@link TLSARecord}
  *   <li>{@link TXTRecord}
  *   <li>{@link URIRecord}
@@ -152,11 +157,11 @@ public enum RecordType {
     /**
      * DNSSEC signature
      */
-    RRSIG ((short)46, UnknownRecord.class, "DNSSEC signature"),
+    RRSIG ((short)46, RRSIGRecord.class, "DNSSEC signature"),
     /**
      * Next-Secure record
      */
-    NSEC  ((short)47, UnknownRecord.class, "Next-Secure record"),
+    NSEC  ((short)47, NSECRecord.class, "Next-Secure record"),
     /**
      * DNS Key record
      */
@@ -168,7 +173,7 @@ public enum RecordType {
     /**
      * NSEC record version 3
      */
-    NSEC3((short)50, UnknownRecord.class, "NSEC record version 3"),
+    NSEC3((short)50, NSEC3Record.class, "NSEC record version 3"),
     /**
      * NSEC3 parameters
      */
@@ -213,12 +218,12 @@ public enum RecordType {
      * Service Binding
      * @since 1.1.0
      */
-    SVCB((short)64, UnknownRecord.class, "Service Binding"),
+    SVCB((short)64, SVCBRecord.class, "Service Binding"),
     /**
      * HTTPS Binding
      * @since 1.1.0
      */
-    HTTPS((short)65, UnknownRecord.class, "HTTPS Binding"),
+    HTTPS((short)65, HTTPSRecord.class, "HTTPS Binding"),
     /**
      * Endpoint discovery for delegation synchronization
      * @since 1.2.0

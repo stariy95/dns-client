@@ -72,6 +72,11 @@ public class RecordTypeUnitTest {
         assertEquals(SMIMEARecord.class, RecordType.SMIMEA.getRecordClass());
         assertEquals(EUI48Record.class, RecordType.EUI48.getRecordClass());
         assertEquals(EUI64Record.class, RecordType.EUI64.getRecordClass());
+        assertEquals(RRSIGRecord.class, RecordType.RRSIG.getRecordClass());
+        assertEquals(NSECRecord.class, RecordType.NSEC.getRecordClass());
+        assertEquals(NSEC3Record.class, RecordType.NSEC3.getRecordClass());
+        assertEquals(SVCBRecord.class, RecordType.SVCB.getRecordClass());
+        assertEquals(HTTPSRecord.class, RecordType.HTTPS.getRecordClass());
     }
 
     @Test
