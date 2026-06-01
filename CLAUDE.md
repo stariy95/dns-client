@@ -13,7 +13,7 @@ The library targets **Android 5.0+ (API 21) and JRE 8+** (`sourceCompatibility`/
 The critical rule is **Java 8 _language features_ yes, Java 8 _runtime APIs_ no**:
 - ✅ **Allowed — Java 8 syntax:** lambdas, method references, default/static interface methods, try-with-resources. D8 desugaring backports these to every Android API level, so they are safe at API 21 with no action required from consumers.
 - ❌ **Avoid — Java 8 library APIs:** `java.time`, `java.util.stream`, `Optional`, `java.util.function`, `CompletableFuture`. These are native only on API 24+; on API 21–23 they force the *consuming app* to enable core library desugaring or they crash at runtime. Subtlety: a lambda *implementing* a `Comparator` is fine, but the `Comparator.comparingInt(...)` static factory is one of these APIs — avoid it. When unsure about an API, prefer the Java 7-era equivalent.
-- ❌ **No third-party runtime dependency.** The only declared dependency is JUnit 4, and it is `testImplementation` only.
+- ❌ **No third-party runtime dependency.** The only declared dependencies are JUnit 5 (Jupiter) — `org.junit.jupiter:junit-jupiter` (`testImplementation`) plus `org.junit.platform:junit-platform-launcher` (`testRuntimeOnly`) — and they are test-only, so nothing ships to consumers. (JUnit stays on the 5.x line because 6.x raised its baseline to Java 17; 5.x still supports Java 8.)
 
 The existing code uses no Java 8 APIs (only `AtomicInteger`, `java.net.*`, `ArrayList`/`Collections`/`Comparator`, `HttpsURLConnection`), so the source-level bump changed nothing at runtime — it only unlocks the syntax above.
 
@@ -22,17 +22,23 @@ The existing code uses no Java 8 APIs (only `AtomicInteger`, `java.net.*`, `Arra
 Use the Gradle wrapper (`./gradlew`); the project pins Gradle 8.14.5 (runs on JDK 8–24). The Java 8 target is enforced via `options.release = 8` on `JavaCompile` (in `build.gradle`), which compiles against the Java 8 API surface so accidental use of newer JDK APIs fails the build — building therefore requires JDK 9+ (CI pins Temurin 17).
 
 ```bash
-./gradlew assemble        # compile + build jars (what CI runs)
-./gradlew build           # assemble + run tests
+./gradlew assemble        # compile + build jars (no tests)
+./gradlew build           # assemble + run tests (what CI runs)
 ./gradlew test            # run unit tests only
 ./gradlew clean
 
 # Run a single test class or method:
 ./gradlew test --tests com.kendamasoft.dns.protocol.BufferUnitTest
 ./gradlew test --tests 'com.kendamasoft.dns.protocol.BufferUnitTest.testReadByte'
+
+./gradlew test -Pintegration   # also run the @Tag("integration") live-network tests
 ```
 
-CI (`.github/workflows/build.yml`) runs `./gradlew assemble` on every push/PR — it does **not** run tests, so run them locally. Releases are tag-driven (`v*`) via `release.yml`; publishing to Maven Central is manual via the **Central Portal** (OSSRH was shut down 2025-06-30): `./gradlew publish` uploads through the OSSRH Staging API, then you finalize the deployment at central.sonatype.com. Credentials are a Central Portal **user token** in `local.properties` (`ossrh.user`/`ossrh.key`) — see the comments at the bottom of `build.gradle`.
+The default `test` run excludes JUnit tests tagged `@Tag("integration")` (live DNS queries
+in `LiveResolverIntegrationTest`) so the suite stays deterministic and network-free; pass
+`-Pintegration` to include them (configured via `excludeTags` in `build.gradle`).
+
+CI (`.github/workflows/build.yml`) runs `./gradlew build` on every push/PR — `build` runs the tests as well as assembling. Releases are tag-driven (`v*`) via `release.yml`, which also runs `./gradlew build` so releases are gated on passing tests; publishing to Maven Central is manual via the **Central Portal** (OSSRH was shut down 2025-06-30): `./gradlew publish` uploads through the OSSRH Staging API, then you finalize the deployment at central.sonatype.com. Credentials are a Central Portal **user token** in `local.properties` (`ossrh.user`/`ossrh.key`) — see the comments at the bottom of `build.gradle`.
 
 ## Architecture
 
@@ -67,4 +73,4 @@ Each record type parses its own RDATA. `AbstractRecord.parseData(short dataLengt
 - `Buffer.readByte()` uses a bare `assert` for bounds — assertions are off by default at runtime, so malformed/short responses can read past intended bounds rather than failing loudly.
 - Several constructors swallow socket setup exceptions with `printStackTrace()` (e.g. `DnsConnectionTcp`/`Udp` no-arg constructors), leaving a half-initialized object; `send`/`receive` then guard with `IllegalStateException`.
 - `DnsTest` (a `main` in the `dns` package) and the `overview.html` snippet are runnable usage examples, not part of the public API.
-- Tests are JUnit 4 (`org.junit.*`), named `*UnitTest`, and live under `src/test/java` mirroring the package layout.
+- Tests are JUnit 5 / Jupiter (`org.junit.jupiter.api.*`), named `*UnitTest`, and live under `src/test/java` mirroring the package layout. Coverage spans the public API: request building (`MessageBuilderUnitTest`), `RecordType` lookup, response parsing (`MessageParseUnitTest`), per-type RDATA parsing (`RecordsParseUnitTest`), and the `doRequest` contract (`DnsConnectionUnitTest`). Two patterns recur: parsing tests feed **canned wire-format byte fixtures** through the public `Buffer` (no public constructor builds a populated `Message`), and `doRequest` is driven offline by a test subclass of `DnsConnection` overriding the protected `send`/`receive`. The records tests are characterization tests that pin current behavior — including the `CAARecord.toString()` "CCA" typo.

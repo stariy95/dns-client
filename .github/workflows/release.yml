@@ -60,7 +60,7 @@ jobs:
           cache: gradle
 
       - name: Build project
-        run: chmod +x ./gradlew && ./gradlew assemble
+        run: chmod +x ./gradlew && ./gradlew build
 
       - name: Upload Main Jar
         id: upload-main-jar

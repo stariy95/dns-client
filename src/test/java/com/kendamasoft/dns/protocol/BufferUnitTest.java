@@ -1,15 +1,15 @@
 package com.kendamasoft.dns.protocol;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BufferUnitTest {
 
     Buffer buffer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         buffer = new Buffer();
     }

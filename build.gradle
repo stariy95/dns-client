@@ -21,7 +21,8 @@ group = 'com.kendamasoft'
 version = '1.2.0-SNAPSHOT'
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 // Compile against the Java 8 API (ct.sym), so code that would only run on a newer
@@ -30,6 +31,16 @@ dependencies {
 tasks.withType(JavaCompile).configureEach {
     options.release = 8
     options.compilerArgs << '-Xlint:-options'
+}
+
+tasks.named('test') {
+    useJUnitPlatform {
+        // Live-network tests are tagged "integration" and skipped by default (and in CI).
+        // Run them with: ./gradlew test -Pintegration
+        if (!project.hasProperty('integration')) {
+            excludeTags 'integration'
+        }
+    }
 }
 
 java {
