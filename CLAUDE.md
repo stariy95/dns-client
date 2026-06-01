@@ -19,7 +19,7 @@ The existing code uses no Java 8 APIs (only `AtomicInteger`, `java.net.*`, `Arra
 
 ## Build & test
 
-Use the Gradle wrapper (`./gradlew`); the project pins Gradle 7.4.1.
+Use the Gradle wrapper (`./gradlew`); the project pins Gradle 8.14.5 (runs on JDK 8–24). The Java 8 target is enforced via `options.release = 8` on `JavaCompile` (in `build.gradle`), which compiles against the Java 8 API surface so accidental use of newer JDK APIs fails the build — building therefore requires JDK 9+ (CI pins Temurin 17).
 
 ```bash
 ./gradlew assemble        # compile + build jars (what CI runs)

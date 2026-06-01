@@ -17,14 +17,19 @@ repositories {
 def siteUrl = 'https://github.com/stariy95/dns-client'
 def projectDescription = 'Compact DNS client library intended primary for network utilities and testing applications'
 
-group 'com.kendamasoft'
-version '1.2.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+group = 'com.kendamasoft'
+version = '1.2.0-SNAPSHOT'
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+}
+
+// Compile against the Java 8 API (ct.sym), so code that would only run on a newer
+// JRE/Android is caught at build time. -Xlint:-options silences the "source 8 is
+// obsolete" note emitted by modern JDKs.
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.compilerArgs << '-Xlint:-options'
 }
 
 java {
@@ -36,19 +41,27 @@ Properties properties = new Properties()
 if(project.rootProject.file('local.properties').exists()) {
     properties.load(project.rootProject.file('local.properties')?.newDataInputStream())
 }
+// Central Portal user token (Account > Generate User Token at https://central.sonatype.com).
+// The legacy OSSRH password no longer works and returns HTTP 401.
 def ossrhUsername = properties.getProperty('ossrh.user')
 def ossrhKey = properties.getProperty('ossrh.key')
 
 publishing {
     repositories {
         maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            // OSSRH was shut down 2025-06-30; publish through the Central Portal instead.
+            // Releases go via the OSSRH Staging API compatibility service; snapshots publish directly.
+            def releasesRepoUrl = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://central.sonatype.com/repository/maven-snapshots/"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
             credentials  {
-                username ossrhUsername
-                password ossrhKey
+                username = ossrhUsername
+                password = ossrhKey
+            }
+            authentication {
+                // Send Basic auth preemptively; the Portal endpoints may not issue a 401 challenge.
+                basic(BasicAuthentication)
             }
         }
     }
@@ -82,27 +95,28 @@ publishing {
 }
 
 signing {
-    required { !version.endsWith("SNAPSHOT") }
+    required = { !version.endsWith("SNAPSHOT") }
     useGpgCmd()
     sign publishing.publications.mavenJava
 }
 
 javadoc {
     options.overview = "overview.html"
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
+    options.addBooleanOption('html5', true)
 }
 
 wrapper {
-    gradleVersion = '7.4.1'
+    gradleVersion = '8.14.5'
 }
 
-// Publishing instructions:
-//  1. commit and push release version
-//  2. deploy to a staging repository:
+// Publishing to Maven Central (Central Portal):
+//  1. Generate a Portal user token at https://central.sonatype.com (Account > Generate User
+//     Token) and put it in local.properties as ossrh.user / ossrh.key
+//  2. commit and push the release version
+//  3. deploy:
 //          ./gradlew publish
-//  3. push tag to trigger GitHub release:
+//  4. finalize: log in to https://central.sonatype.com > Deployments, verify, then Publish
+//     (releases are staged via the OSSRH Staging API; snapshots publish directly)
+//  5. push tag to trigger GitHub release:
 //          git tag -a -m "Experimental GitHub release" v1.1.0
 //          git push --follow-tags
-//  4. release staging repository to Maven Central

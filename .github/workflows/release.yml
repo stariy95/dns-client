@@ -9,7 +9,7 @@ jobs:
   # Prepares new GitHub release for the tag and exposes required variables for dependent jobs
   prepare-release:
     name: Create Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
       version: ${{ steps.vars.outputs.version }}
@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -25,8 +25,8 @@ jobs:
         id: vars
         run: |
           RELEASE_TAG=${GITHUB_REF#refs/*/}
-          echo ::set-output name=tag::${RELEASE_TAG}
-          echo ::set-output name=version::${RELEASE_TAG:1}
+          echo "tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE_TAG:1}" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         id: create_release
@@ -44,13 +44,20 @@ jobs:
   build-and-upload:
     name: Build and upload artifacts
     needs: prepare-release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
 
       - name: Build project
         run: chmod +x ./gradlew && ./gradlew assemble
