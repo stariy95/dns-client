@@ -10,7 +10,7 @@ import java.util.List;
  */
 public final class Message {
 
-    private static final Comparator<ResourceRecord> COMPARATOR = new ResourceRecordComparator();
+    private static final Comparator<ResourceRecord> COMPARATOR = (o1, o2) -> o1.recordTypeId - o2.recordTypeId;
 
     Header header;
     QuestionEntry questionEntry;
@@ -73,12 +73,5 @@ public final class Message {
         }
         Collections.sort(result, COMPARATOR);
         return result;
-    }
-
-    private static final class ResourceRecordComparator implements Comparator<ResourceRecord> {
-        @Override
-        public int compare(ResourceRecord o1, ResourceRecord o2) {
-            return o1.recordTypeId - o2.recordTypeId;
-        }
     }
 }

@@ -20,8 +20,8 @@ def projectDescription = 'Compact DNS client library intended primary for networ
 group 'com.kendamasoft'
 version '1.2.0-SNAPSHOT'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'

@@ -4,7 +4,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.kendamasoft/dns-client.svg?colorB=brightgreen)](https://search.maven.org/artifact/com.kendamasoft/dns-client)
 
 Compact DNS client library intended primary for network utilities and testing applications.
-It is fully compatible with <b>Android 2.3</b> and newer and with standalone <b>JRE 7</b> and newer.
+It is fully compatible with <b>Android 5.0</b> (API 21) and newer and with standalone <b>JRE 8</b> and newer.
 
 ## Release Notes
 
