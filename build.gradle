@@ -111,6 +111,54 @@ signing {
     sign publishing.publications.mavenJava
 }
 
+// Deployments uploaded through the OSSRH Staging API are NOT automatically visible in the
+// Central Publisher Portal: an extra authenticated request must move the staging repo into
+// the publishing-ready state before it shows up under Deployments to verify & Publish.
+// See https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#ensuring-deployment-visibility-in-the-central-publisher-portal
+// Uses the JDK's HttpURLConnection (no extra plugin/dependency); java.net.* is auto-imported
+// in Groovy build scripts.
+def centralNamespace = group  // 'com.kendamasoft'
+
+tasks.register('promoteStagingRepository') {
+    description = 'Moves the OSSRH staging repo into the Central Portal (publishing-ready, user_managed).'
+    group = 'publishing'
+
+    // Skip snapshots (they publish directly and never enter the Staging API) and skip if the
+    // upload failed, so finalizedBy never promotes an incomplete/failed deploy.
+    def uploadTask = tasks.named('publishMavenJavaPublicationToMavenRepository')
+    onlyIf {
+        !version.toString().endsWith('SNAPSHOT') && uploadTask.get().state.failure == null
+    }
+
+    doLast {
+        if (!ossrhUsername || !ossrhKey) {
+            throw new GradleException('Missing ossrh.user / ossrh.key in local.properties; cannot promote.')
+        }
+        // Bearer scheme wrapping the same base64(user:key) payload Basic auth would use.
+        def token = "${ossrhUsername}:${ossrhKey}".bytes.encodeBase64().toString()
+        def endpoint = "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/${centralNamespace}?publishing_type=user_managed"
+        def conn = (HttpURLConnection) new URL(endpoint).openConnection()
+        conn.requestMethod = 'POST'
+        conn.setRequestProperty('Authorization', "Bearer ${token}")
+        conn.setRequestProperty('Content-Length', '0')   // POST with empty body
+        conn.connectTimeout = 30_000
+        conn.readTimeout = 60_000
+        def code = conn.responseCode
+        def body = (code >= 400 ? conn.errorStream : conn.inputStream)?.text
+        if (code >= 400) {
+            throw new GradleException("Promote failed: HTTP ${code} ${body}")
+        }
+        logger.lifecycle("Promoted ${centralNamespace} staging repo to the Central Portal (HTTP ${code}). " +
+                "Verify & Publish at https://central.sonatype.com > Deployments.")
+    }
+}
+
+// Auto-run the promote after a release upload, so `./gradlew publish` both uploads and makes
+// the deployment visible in the Portal in one command (the onlyIf above no-ops for snapshots).
+tasks.named('publish') {
+    finalizedBy 'promoteStagingRepository'
+}
+
 javadoc {
     options.overview = "overview.html"
     options.addBooleanOption('html5', true)
@@ -126,8 +174,11 @@ wrapper {
 //  2. commit and push the release version
 //  3. deploy:
 //          ./gradlew publish
+//     For releases this uploads via the OSSRH Staging API and then runs
+//     promoteStagingRepository (finalizedBy) to move the staging repo into the Portal so it
+//     becomes visible under Deployments. Snapshots publish directly and skip the promote.
 //  4. finalize: log in to https://central.sonatype.com > Deployments, verify, then Publish
-//     (releases are staged via the OSSRH Staging API; snapshots publish directly)
+//     (the deployment is uploaded as user_managed, i.e. validated but not auto-released)
 //  5. push tag to trigger GitHub release:
 //          git tag -a -m "Experimental GitHub release" v1.1.0
 //          git push --follow-tags
