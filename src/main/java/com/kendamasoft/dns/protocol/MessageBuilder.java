@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Usage:<br>
  * <pre><code>
  *     ...
- *     DnsProtocol.Message message = new MessageBuilder()
+ *     Message message = new MessageBuilder()
  *              .setName("example.com")
- *              .setType(DnsProtocol.RecordType.A)
+ *              .setType(RecordType.A)
  *              .build();
  *     ...
  * </code></pre>

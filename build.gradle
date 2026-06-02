@@ -15,10 +15,10 @@ repositories {
 }
 
 def siteUrl = 'https://github.com/stariy95/dns-client'
-def projectDescription = 'Compact DNS client library intended primary for network utilities and testing applications'
+def projectDescription = 'Compact DNS client library intended primarily for network utilities and testing applications'
 
 group = 'com.kendamasoft'
-version = '1.2.0-SNAPSHOT'
+version = '1.2.0'
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
